@@ -1,0 +1,41 @@
+
+
+{
+
+  "title": "referenceNotAdded",
+
+
+  "input": {
+
+    "WHERE":{
+
+      "GT":{
+
+        "course_avg":97
+
+      }
+
+    },
+
+    "OPTIONS":{
+
+      "COLUMNS":[
+
+        "course_people",
+
+        "course_avg"
+
+      ],
+
+      "ORDER":"course_avg"
+
+    }
+
+  },
+
+  "errorExpected": true,
+  "expected": "InsightError"
+
+
+
+}

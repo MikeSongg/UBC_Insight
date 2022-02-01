@@ -1,0 +1,42 @@
+
+
+{
+
+  "title": "invalid order",
+
+
+  "input": {
+
+    "WHERE":{
+
+      "GT":{
+
+        "courses_avg":97
+
+      }
+
+    },
+
+    "OPTIONS":{
+
+      "COLUMNS":[
+
+        "courses_dept",
+
+        "courses_avg"
+
+
+      ],
+
+      "ORDER":["course_avg", "courses_dept"]
+
+    }
+
+  },
+
+  "errorExpected": true,
+  "expected": "InsightError"
+
+
+
+}
