@@ -1,0 +1,42 @@
+
+
+{
+
+  "title": "invalid combination error",
+
+
+  "input": {
+
+    "WHERE":{
+
+      "GT":{
+
+        "courses_av":97
+
+      }
+
+    },
+
+    "OPTIONS":{
+
+      "COLUMNS":[
+
+        "courses_dept",
+
+        "courses_avgs",
+        "courses2_dept"
+
+      ],
+
+      "ORDER":["courses_avg","courses_dept"]
+
+    }
+
+  },
+
+  "errorExpected": true,
+  "expected": "InsightError"
+
+
+
+}

@@ -1,0 +1,23 @@
+{
+
+  "title": "over 5000 as well as no where",
+
+
+  "input": {
+    "WHERE": {},
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+
+
+
+  "errorExpected": true,
+
+  "expected": "ResultTooLargeError"
+}
