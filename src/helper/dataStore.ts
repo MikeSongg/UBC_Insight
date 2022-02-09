@@ -8,6 +8,7 @@ export class DataStore {
 	constructor() {
 		console.log("dataStore::init()");
 	}
+
 	public testStore(id: string, content: string, kind: InsightDatasetKind) {
 		return "Yes";
 	}
