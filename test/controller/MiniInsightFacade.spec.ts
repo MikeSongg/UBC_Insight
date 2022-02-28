@@ -70,7 +70,7 @@ describe("InsightFacade", function () {
 				expect(result).to.deep.equal(expected);
 			});
 		});
-
+/*
 		it("Should add two valid datasets", function () {
 			const id1: string = "courses";
 			const content1: string = datasetContents.get("courses") ?? "";
@@ -94,7 +94,7 @@ describe("InsightFacade", function () {
 			const result = insightFacade.addDataset(id,content,InsightDatasetKind.Courses);
 			return expect(result).eventually.to.be.rejectedWith(InsightError);
 		});
-
+*/
 		it ("should reject adding invalid dataset  (blank json file inside folder) ",  function () {
 			const id: string = "blankJson";
 			const content: string = datasetContents.get("blankJson") ?? "";
@@ -102,7 +102,7 @@ describe("InsightFacade", function () {
 			return expect(result).eventually.to.be.rejectedWith(InsightError);
 
 		});
-
+/*
 		it ("should reject adding invalid dataset  (id -> all blank space) ",  function () {
 			const id: string = " ";
 			const content: string = datasetContents.get("courses") ?? "";
@@ -178,13 +178,12 @@ describe("InsightFacade", function () {
 				});
 		});
 
-		/** NOTE: Bug fixed: it added datasets with same ID twice**/
 		it ("should list multiple ",  function () {
 			const id1: string = "courses";
 			const content: string = datasetContents.get("courses") ?? "";
 			return insightFacade.addDataset(id1, content, InsightDatasetKind.Courses)
 				.then(() => {
-					return insightFacade.addDataset(id1 + "Beep",content,InsightDatasetKind.Courses);
+					return insightFacade.addDataset(id1,content,InsightDatasetKind.Courses);
 				})
 				.then(() => {
 					return insightFacade.listDatasets();
@@ -201,6 +200,8 @@ describe("InsightFacade", function () {
 					});
 				});
 		});
+
+ */
 	});
 
 	/*
