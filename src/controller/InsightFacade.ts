@@ -45,7 +45,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		// Check if the Dataset already added
-		if (this.DuplicateDatasetTest(id)) {
+		if (this.HasDuplicateDataset(id)) {
 			return Promise.reject(new InsightError(id + " has been added before."));
 		}
 
@@ -56,7 +56,7 @@ export default class InsightFacade implements IInsightFacade {
 			(e) => Promise.reject(new InsightError(e + id))
 		);
 
-		if(InsightFacade.BlankJsonTest(jszip)){
+		if (await InsightFacade.HasBlankJson(jszip)) {
 			return Promise.reject(new InsightError("Found a empty json file"));
 		}
 
@@ -157,23 +157,25 @@ export default class InsightFacade implements IInsightFacade {
 		return 0;
 	}
 
-	/* NOTE: This function may be unnecessary and will get removed upon confirmed */
-
 	/**
 	 * This is a helper function for checking if the content is OK.
+	 * NOTE: I have no idea about how to implement it without await in for loop.
 	 * @param jszip
 	 * @return true (Blank Json file exists), false (OK)
 	 */
-	private static BlankJsonTest(jszip: JSZip): boolean {
-		// TODO
-		/*
-		let fileList = jszip.files;
-		for (let file in fileList) {
-			console.log(file);
-			jszip.files[file].async("text")?.then( (e) => console.log(e));
+	private static async HasBlankJson(jszip: JSZip): Promise<boolean> {
+		let blankFileMark: boolean = false;
+
+		for (let file in jszip.files) {
+			if(file !== "courses/") {
+				// eslint-disable-next-line no-await-in-loop
+				await jszip.files[file].async("text")?.then((e) => {
+					blankFileMark = blankFileMark || (e === "");
+				});
+			}
 		}
-		*/
-		return false;
+
+		return blankFileMark;
 	}
 
 	/**
@@ -191,7 +193,7 @@ export default class InsightFacade implements IInsightFacade {
 	 * @param id string
 	 * @return true (The ID already exists), false (OK)
 	 */
-	private DuplicateDatasetTest(id: string): boolean {
+	private HasDuplicateDataset(id: string): boolean {
 		for (let dataset of this.insightDatasets) {
 			if(dataset.id === id){
 				return true;
