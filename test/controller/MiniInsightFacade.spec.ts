@@ -94,7 +94,7 @@ describe("InsightFacade", function () {
 			const result = insightFacade.addDataset(id,content,InsightDatasetKind.Courses);
 			return expect(result).eventually.to.be.rejectedWith(InsightError);
 		});
-
+*/
 		it ("should reject adding invalid dataset  (blank json file inside folder) ",  function () {
 			const id: string = "blankJson";
 			const content: string = datasetContents.get("blankJson") ?? "";
@@ -102,7 +102,7 @@ describe("InsightFacade", function () {
 			return expect(result).eventually.to.be.rejectedWith(InsightError);
 
 		});
-
+/*
 		it ("should reject adding invalid dataset  (id -> all blank space) ",  function () {
 			const id: string = " ";
 			const content: string = datasetContents.get("courses") ?? "";

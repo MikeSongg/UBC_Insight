@@ -12,13 +12,12 @@ import JSZip from "jszip";
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
- *
  */
 
 /**
-	* Self-designed types
+ * Self-designed types
+ * TODO: Consider rename. Consider Persistent this.
  */
-
 interface TestDataset {
 	id: string;
 	kind: InsightDatasetKind;
@@ -46,42 +45,27 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		// Check if the Dataset already added
-		if(this.DuplicateDatasetTest(id)) {
+		if (this.DuplicateDatasetTest(id)) {
 			return Promise.reject(new InsightError(id + " has been added before."));
 		}
 
-		switch (InsightFacade.ContentValidTest(id)) {
-			case -1:
-				return Promise.reject(new InsightError(id + " content Rejected."));
-		}
-
-
 		let jszip = new JSZip();
-/*
-		let decodedString = await jszip.loadAsync(content, {base64:true}).then(
-			function (zip) {
-				return zip.file("courses")?.async("text");
-			}
-		).then(
-			function (s) {
-				if (s !== undefined) {
-					return s;
-				} else {
-					// Rejecting
-					return Promise.reject(new InsightError(id + " content Rejected."));
-				}
-			}
-		). catch((e) => Promise.reject(new InsightError(e + id)));
-*/
 
 		// Load and list files.
-		jszip = await jszip.loadAsync(content, {base64: true}). catch(
+		jszip = await jszip.loadAsync(content, {base64: true}).catch(
 			(e) => Promise.reject(new InsightError(e + id))
 		);
+
+		if(InsightFacade.BlankJsonTest(jszip)){
+			return Promise.reject(new InsightError("Found a empty json file"));
+		}
+
 		let a = await jszip.folder("courses")?.files;
 		let fileList;
-		if(a === undefined) {
+		if (a === undefined) {
 			return Promise.reject(new InsightError("File Reading Error"));
+		} else if (Object.keys(a).length === 1) {
+			return Promise.reject(new InsightError("Empty folder"));
 		} else {
 			fileList = jszip.files;
 		}
@@ -150,13 +134,17 @@ export default class InsightFacade implements IInsightFacade {
 		return Promise.resolve(tempDatasets);
 	}
 
-	/*
-		-------------------------
-		Below are helper functions
-		-------------------------
-	*/
+	/**
+		* -------------------------
+		* Below are helper functions
+		* -------------------------
+	 */
 
-	// This is a helper function for checking ID validity.
+	/**
+	 * This is a helper function for checking ID validity.
+	 * @param id: string
+	 * @return -1 (only whitespace), -2 (contains underscore), 0 (OK)
+	 */
 	private static IDValidTest(id: string): number {
 		// ID with only whitespace
 		if(id.trim().length === 0){
@@ -169,16 +157,40 @@ export default class InsightFacade implements IInsightFacade {
 		return 0;
 	}
 
-	private static ContentValidTest(content: string): number {
+	/* NOTE: This function may be unnecessary and will get removed upon confirmed */
+
+	/**
+	 * This is a helper function for checking if the content is OK.
+	 * @param jszip
+	 * @return true (Blank Json file exists), false (OK)
+	 */
+	private static BlankJsonTest(jszip: JSZip): boolean {
 		// TODO
-		return 0;
+		/*
+		let fileList = jszip.files;
+		for (let file in fileList) {
+			console.log(file);
+			jszip.files[file].async("text")?.then( (e) => console.log(e));
+		}
+		*/
+		return false;
 	}
 
+	/**
+	 * This is a helper function for counting NumRows.
+	 * @param jszip JSZip
+	 * @return number
+	 */
 	private static NumRowsHelper(jszip: JSZip): number {
 		// TODO
 		return 0;
 	}
 
+	/**
+	 * This is a helper function for checking if an ID already exists.
+	 * @param id string
+	 * @return true (The ID already exists), false (OK)
+	 */
 	private DuplicateDatasetTest(id: string): boolean {
 		for (let dataset of this.insightDatasets) {
 			if(dataset.id === id){
@@ -188,6 +200,10 @@ export default class InsightFacade implements IInsightFacade {
 		return false;
 	}
 
+	/**
+	 * This is a helper function for listing all IDs.
+	 * @return A string[] contains all IDs
+	 */
 	private ListIDs(): string[] {
 		let ids: string[] = [];
 		for (let dataset of this.insightDatasets) {
