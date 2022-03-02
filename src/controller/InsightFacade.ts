@@ -23,6 +23,8 @@ interface TestDataset {
 	kind: InsightDatasetKind;
 	numRows: number;
 	content: string;
+	// Map< ClassName, ClassObject >
+	coursesObj: Map<string, object>;
 }
 
 export default class InsightFacade implements IInsightFacade {
@@ -36,25 +38,22 @@ export default class InsightFacade implements IInsightFacade {
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		// TODO: the PERSISTENCE part, return REJECT here if necessary.
+
 		// Check the ID before adding it
-		switch (InsightFacade.IDValidTest(id)) {
-			case -1:
-				return Promise.reject(new InsightError(id + " contains only whitespace."));
-			case -2:
-				return Promise.reject(new InsightError(id + " contains underscore."));
+		let checkResult: boolean|InsightError = this.IDIsValid(id);
+		if(checkResult !== true) {
+			return Promise.reject(checkResult);
 		}
 
-		// Check if the Dataset already added
-		if (this.HasDuplicateDataset(id)) {
-			return Promise.reject(new InsightError(id + " has been added before."));
-		}
-
+		// Load zip file.
 		let jszip = new JSZip();
-
-		// Load and list files.
 		jszip = await jszip.loadAsync(content, {base64: true}).catch(
 			(e) => Promise.reject(new InsightError(e + id))
 		);
+
+
+		/*
+		// TODO: Should be merged into ObjectParseHelper
 
 		if (await InsightFacade.HasBlankJson(jszip)) {
 			return Promise.reject(new InsightError("Found a empty json file"));
@@ -69,22 +68,33 @@ export default class InsightFacade implements IInsightFacade {
 		} else {
 			fileList = jszip.files;
 		}
-		const numRows = InsightFacade.NumRowsHelper(jszip);
+		 */
 
 
-		// Create a new Dataset for add
+		// Parse objects and create new testDataset Object.
+		let Obj: Map<string, object> = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
+			return Promise.reject(new InsightError(e));
+		});
+
+		// TODO: Merge this into ObjectParseHelper?
+		const numRows = InsightFacade.NumRowsHelper(Obj);
+
+		// push this dataset into the dataset list
 		let testDataset: TestDataset;
 		testDataset = {
 			id: id,
 			content: content,
 			kind: kind,
-			numRows: numRows
+			numRows: numRows,
+			coursesObj: Obj
 		};
 		this.insightDatasets.push(testDataset);
 
-		// Fetch IDs of datasets for return
+		// TODO :PERSISTENCE
 
+		// Fetch IDs of datasets for return
 		return Promise.resolve(this.ListIDs());
+
 	}
 
 	public removeDataset(id: string): Promise<string> {
@@ -140,6 +150,22 @@ export default class InsightFacade implements IInsightFacade {
 		* -------------------------
 	 */
 
+	private IDIsValid(id: string): boolean|InsightError {
+		switch (InsightFacade.IDValidTest(id)) {
+			case -1:
+				return new InsightError(id + " contains only whitespace.");
+			case -2:
+				return new InsightError(id + " contains underscore.");
+		}
+
+		// Check if the Dataset already added
+		if (this.HasDuplicateDataset(id)) {
+			return new InsightError(id + " has been added before.");
+		}
+
+		return true;
+	}
+
 	/**
 	 * This is a helper function for checking ID validity.
 	 * @param id: string
@@ -157,36 +183,6 @@ export default class InsightFacade implements IInsightFacade {
 		return 0;
 	}
 
-	/**
-	 * This is a helper function for checking if the content is OK.
-	 * NOTE: I have no idea about how to implement it without await in for loop.
-	 * @param jszip
-	 * @return true (Blank Json file exists), false (OK)
-	 */
-	private static async HasBlankJson(jszip: JSZip): Promise<boolean> {
-		let blankFileMark: boolean = false;
-
-		for (let file in jszip.files) {
-			if(file !== "courses/") {
-				// eslint-disable-next-line no-await-in-loop
-				await jszip.files[file].async("text")?.then((e) => {
-					blankFileMark = blankFileMark || (e === "");
-				});
-			}
-		}
-
-		return blankFileMark;
-	}
-
-	/**
-	 * This is a helper function for counting NumRows.
-	 * @param jszip JSZip
-	 * @return number
-	 */
-	private static NumRowsHelper(jszip: JSZip): number {
-		// TODO
-		return 0;
-	}
 
 	/**
 	 * This is a helper function for checking if an ID already exists.
@@ -201,6 +197,67 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		return false;
 	}
+
+	/**
+	 * This is a helper function for counting NumRows.
+	 * @param courseObject Map<string, object>
+	 * @return number
+	 */
+	private static NumRowsHelper(courseObject: Map<string, object>): number {
+		// TODO
+		console.log("DEBUG");
+		return 0;
+	}
+
+	/**
+	 * This is a helper function for parsing course objects.
+	 */
+	private static async ObjectParseHelper(jszip: JSZip): Promise<Map<string, object>> {
+		/** NOTE: Map < key, Object> */
+		let a = new Map<string, object>([["Class", jszip],["class2", jszip]]);
+
+		/** This marks if a blank file ever exists. */
+		let PromiseSet: Array<Promise<boolean>> = [];
+
+		/** Reject if the folder is empty */
+		const fileList = await jszip.folder("courses")?.files;
+		if (fileList === undefined) {
+			return Promise.reject(new InsightError("File Reading Error"));
+		} else if (Object.keys(fileList).length === 1) {
+			return Promise.reject(new InsightError("Empty folder"));
+		}
+
+		for (let file in fileList) {
+			if(file !== "courses/") {
+				PromiseSet.push(
+					jszip.files[file].async("text")?.then((str) => {
+						if (str === "") {
+							return Promise.reject(new InsightError("BlankFile"));
+						} else {
+							a.set(file, JSON.parse(str));
+							return false;
+						}
+					}).catch( (e) => {
+						return Promise.reject(e);
+					})
+				);
+			}
+		}
+
+		let hasBlank = await Promise.allSettled(PromiseSet).then((resultSet) => {
+			return resultSet.every((result) =>
+				result.status === "rejected"
+			);
+		});
+
+		if(hasBlank) {
+			return Promise.reject(new InsightError("Blank File"));
+		} else {
+			return Promise.resolve(a);
+		}
+
+	}
+
 
 	/**
 	 * This is a helper function for listing all IDs.

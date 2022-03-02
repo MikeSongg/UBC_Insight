@@ -26,6 +26,7 @@ describe("InsightFacade", function () {
 		blankFolder: "./test/resources/archives/blankFolder.zip",
 		blankJson: "./test/resources/archives/blankJson.zip",
 		notZip: "./test/resources/archives/notZip.txt",
+		coursesMini: "./test/resources/archives/courses_mini.txt"
 	};
 
 	before(function () {
@@ -64,13 +65,13 @@ describe("InsightFacade", function () {
 		// This is a unit test. You should create more like this!
 		it("Should add a valid dataset", function () {
 			const id: string = "courses";
-			const content: string = datasetContents.get("courses") ?? "";
+			const content: string = datasetContents.get("coursesMini") ?? "";
 			const expected: string[] = [id];
 			return insightFacade.addDataset(id, content, InsightDatasetKind.Courses).then((result: string[]) => {
 				expect(result).to.deep.equal(expected);
 			});
 		});
-/*
+
 		it("Should add two valid datasets", function () {
 			const id1: string = "courses";
 			const content1: string = datasetContents.get("courses") ?? "";
@@ -94,7 +95,7 @@ describe("InsightFacade", function () {
 			const result = insightFacade.addDataset(id,content,InsightDatasetKind.Courses);
 			return expect(result).eventually.to.be.rejectedWith(InsightError);
 		});
-*/
+
 		it ("should reject adding invalid dataset  (blank json file inside folder) ",  function () {
 			const id: string = "blankJson";
 			const content: string = datasetContents.get("blankJson") ?? "";
@@ -102,7 +103,7 @@ describe("InsightFacade", function () {
 			return expect(result).eventually.to.be.rejectedWith(InsightError);
 
 		});
-/*
+
 		it ("should reject adding invalid dataset  (id -> all blank space) ",  function () {
 			const id: string = " ";
 			const content: string = datasetContents.get("courses") ?? "";
@@ -166,9 +167,9 @@ describe("InsightFacade", function () {
 
 		it ("should list one dataset ",  function () {
 			const id: string = "courses";
-			const content: string = datasetContents.get("courses") ?? "";
+			const content: string = datasetContents.get("coursesMini") ?? "";
 			return insightFacade.addDataset(id, content, InsightDatasetKind.Courses)
-				.then((addedIds) => insightFacade.listDatasets())
+				.then((addedIds) => expect(insightFacade.listDatasets()).to.deep.equal(addedIds))
 				.then((insightDatasets) => {
 					expect(insightDatasets).to.deep.equal([{
 						id: "courses",
@@ -180,7 +181,7 @@ describe("InsightFacade", function () {
 
 		it ("should list multiple ",  function () {
 			const id1: string = "courses";
-			const content: string = datasetContents.get("courses") ?? "";
+			const content: string = datasetContents.get("coursesMini") ?? "";
 			return insightFacade.addDataset(id1, content, InsightDatasetKind.Courses)
 				.then(() => {
 					return insightFacade.addDataset(id1,content,InsightDatasetKind.Courses);
@@ -200,8 +201,6 @@ describe("InsightFacade", function () {
 					});
 				});
 		});
-
- */
 	});
 
 	/*
