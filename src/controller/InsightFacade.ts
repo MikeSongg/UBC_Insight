@@ -24,7 +24,7 @@ interface TestDataset {
 	numRows: number;
 	content: string;
 	// Map< ClassName, ClassObject >
-	coursesObj: Map<string, object>;
+	coursesObj: Map<string, string>;
 }
 
 export default class InsightFacade implements IInsightFacade {
@@ -72,12 +72,12 @@ export default class InsightFacade implements IInsightFacade {
 
 
 		// Parse objects and create new testDataset Object.
-		let Obj: Map<string, object> = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
+		let Obj: Map<string, string> = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
 			return Promise.reject(new InsightError(e));
 		});
 
 		// TODO: Merge this into ObjectParseHelper?
-		const numRows = InsightFacade.NumRowsHelper(Obj);
+		const numRows = this.NumRowsHelper(Obj);
 
 		// push this dataset into the dataset list
 		let testDataset: TestDataset;
@@ -200,23 +200,29 @@ export default class InsightFacade implements IInsightFacade {
 
 	/**
 	 * This is a helper function for counting NumRows.
-	 * @param courseObject Map<string, object>
+	 * @param courseObject Map<string, string>
 	 * @return number
 	 */
-	private static NumRowsHelper(courseObject: Map<string, object>): number {
+	private NumRowsHelper(courseObject: Map<string, string>): number {
 		// TODO
-		console.log("DEBUG");
-		return 0;
+		let numRows: number = 0;
+		courseObject.forEach(((value) => {
+			numRows += JSON.parse(value).result.length;
+		}));
+		return numRows;
 	}
 
 	/**
 	 * This is a helper function for parsing course objects.
+	 * This is a complicate function, please check comments inside.
+	 * @param jszip JSZip
+	 * @return Promise<Map<string, string>>
 	 */
-	private static async ObjectParseHelper(jszip: JSZip): Promise<Map<string, object>> {
+	private static async ObjectParseHelper(jszip: JSZip): Promise<Map<string, string>> {
 		/** NOTE: Map < key, Object> */
-		let a = new Map<string, object>([["Class", jszip],["class2", jszip]]);
+		let a = new Map<string, string>();
 
-		/** This marks if a blank file ever exists. */
+		/** This set of Promises contains the Promise of every file parsing. */
 		let PromiseSet: Array<Promise<boolean>> = [];
 
 		/** Reject if the folder is empty */
@@ -227,23 +233,28 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Empty folder"));
 		}
 
+		/** Traverse the fileList. */
 		for (let file in fileList) {
-			if(file !== "courses/") {
+			if(file !== "courses/") {			/** Exclude the root folder. */
 				PromiseSet.push(
 					jszip.files[file].async("text")?.then((str) => {
 						if (str === "") {
-							return Promise.reject(new InsightError("BlankFile"));
+							/** Found an empty json file. */
+							return Promise.reject();
 						} else {
-							a.set(file, JSON.parse(str));
-							return false;
+							/** File ok, parse and push. */
+							a.set(file, str);
+							return true;
 						}
 					}).catch( (e) => {
+						/** throw the exception to higher level. */
 						return Promise.reject(e);
 					})
 				);
 			}
 		}
 
+		/** Wait for all Promise to finish and return, then check if empty file exists. */
 		let hasBlank = await Promise.allSettled(PromiseSet).then((resultSet) => {
 			return resultSet.every((result) =>
 				result.status === "rejected"
@@ -251,8 +262,10 @@ export default class InsightFacade implements IInsightFacade {
 		});
 
 		if(hasBlank) {
+			/** Reject if contains empty file. */
 			return Promise.reject(new InsightError("Blank File"));
 		} else {
+			/** Files good, return the object hashmap */
 			return Promise.resolve(a);
 		}
 
