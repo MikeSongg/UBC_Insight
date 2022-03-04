@@ -22,7 +22,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	constructor() {
 		console.log("InsightFacadeImpl::init()");
-		this.insightDatasets = [];
+		this.insightDatasets = this.PersistenceRead();
 	}
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -66,7 +66,7 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public removeDataset(id: string): Promise<string> {
-		// Check the ID before adding it
+		// Check the ID before remove it
 		switch (InsightFacade.IDValidTest(id)) {
 			case -1: 	return Promise.reject(new InsightError(id + " contains only whitespace."));
 			case -2: 	return Promise.reject(new InsightError(id + " contains underscore."));
@@ -75,28 +75,30 @@ export default class InsightFacade implements IInsightFacade {
 		// The remove method of array will cause an "undefined" element remain in that position.
 		// So constructing a new Dataset array without the deleted element here can avoid that problem.
 		let tempDataset: TestDataset[] = [];
-		let foundFlag: number = 0;
+		let foundFlag: boolean = false;
 		for(let dataset of this.insightDatasets) {
-			if(dataset.id === id) {
-				foundFlag = 1;
+			if (dataset.id === id) {
+				foundFlag = true;
 				continue;
 			}
 			tempDataset.push(dataset);
 		}
 
-		if(foundFlag === 0) {
+		if(!foundFlag) {
 			// Didn't find ID in array:
 			return Promise.reject(new NotFoundError(id + " is not found."));
 		} else {
 			// Update datasets.
 			this.insightDatasets = tempDataset;
+			this.PersistenceWrite();
 			return Promise.resolve(id);
 		}
 	}
 
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
 		let engine = new QueryEngine(this.insightDatasets);
-		return engine.query(query);
+
+		return engine.queryEngine(query);
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
@@ -255,6 +257,20 @@ export default class InsightFacade implements IInsightFacade {
 			ids.push(dataset.id);
 		}
 		return ids;
+	}
+
+	private PersistenceRead(): TestDataset[]{
+		// TODO: Read the data structure from disk
+		console.log("To be implemented");
+		return [];
+	}
+
+	private PersistenceWrite(): void{
+		// TODO: Write the data structure to disk
+		// this.insightDatasets = this.insightDatasets;
+		let tempDataset: TestDataset[] = this.insightDatasets;
+		this.insightDatasets = tempDataset;
+		console.log("To be implemented");
 	}
 
 }

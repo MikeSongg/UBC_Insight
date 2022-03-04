@@ -9,9 +9,15 @@ import {
 } from "../controller/IInsightFacade";
 import JSZip from "jszip";
 import {TestDataset} from "./dataset";
+import {
+	IntendedQueryRequest,
+	IntendedWHERE,
+	IntendedOPTIONS
+} from "./QueryTypes";
 
 
 export default class QueryEngine {
+
 
 	private insightDataset: TestDataset[];
 
@@ -20,13 +26,13 @@ export default class QueryEngine {
 		this.insightDataset = dataset;
 	}
 
-	public async query(query: any): Promise<InsightResult[]> {
-		this.supertest(query);
-		console.log("CaptureMe!");
+	public async queryEngine(queryRequest: unknown): Promise<InsightResult[]> {
+		// this.supertest(queryRequest);
+		if (queryRequest === null) {
+			return Promise.reject(new InsightError("Null object"));
+		}
+		console.log((queryRequest as IntendedQueryRequest).WHERE);
+		// console.log((queryRequest as object) ["WHERE"]);
 		return Promise.reject("TODO");
-	}
-
-	private supertest(query: string): string {
-		return "haha";
 	}
 }
