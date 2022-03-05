@@ -1,20 +1,12 @@
-// TODO
 import {
-	IInsightFacade,
-	InsightDataset,
-	InsightDatasetKind,
 	InsightError,
 	InsightResult,
-	NotFoundError
 } from "../controller/IInsightFacade";
-import JSZip from "jszip";
 import {TestDataset} from "./dataset";
-import {
-	IntendedQueryRequest,
-	IntendedWHERE,
-	IntendedOPTIONS
-} from "./QueryTypes";
 
+import {
+	IntendedQuery
+} from "./QueryTypes";
 
 export default class QueryEngine {
 
@@ -27,12 +19,22 @@ export default class QueryEngine {
 	}
 
 	public async queryEngine(queryRequest: unknown): Promise<InsightResult[]> {
+		// TODO
 		// this.supertest(queryRequest);
 		if (queryRequest === null) {
 			return Promise.reject(new InsightError("Null object"));
 		}
-		console.log((queryRequest as IntendedQueryRequest).WHERE);
-		// console.log((queryRequest as object) ["WHERE"]);
+		let request = queryRequest as IntendedQuery;
+		const indexedArray: {[key: string]: number} = {
+			foo: 2118,
+		};
+		let random: {[key: string]: number} = request.WHERE.IS ?? indexedArray;
+		// console.log(random);
+
+		Object.entries(random).forEach(
+			([key, value]) => console.log(key, value)
+		);
+		// let selectedCoursesStr: object
 		return Promise.reject("TODO");
 	}
 }
