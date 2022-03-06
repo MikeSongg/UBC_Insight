@@ -261,7 +261,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	private PersistenceRead(): TestDataset[]{
 		// TODO: Read the data structure from disk
-		console.log("To be implemented");
+		console.log("PersistenceRead() To be implemented");
 		return [];
 	}
 
@@ -270,7 +270,7 @@ export default class InsightFacade implements IInsightFacade {
 		// this.insightDatasets = this.insightDatasets;
 		let tempDataset: TestDataset[] = this.insightDatasets;
 		this.insightDatasets = tempDataset;
-		console.log("To be implemented");
+		console.log("PersistenceWrite To be implemented");
 	}
 
 }
