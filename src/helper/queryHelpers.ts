@@ -1,8 +1,10 @@
 
 import {QueryType} from "./queryStructure";
+
+
 // check if the query only has where and options and in right order
 export function checkQuery1(query: unknown){
-	let query2: QueryType = query as QueryType;
+	let query2: any = query as any;
 	return (Object.keys(query2).length === 2) && (Object.keys(query2)[0] === "WHERE")
 		&& (Object.keys(query2)[1] === "OPTIONS");
 }
