@@ -7,25 +7,14 @@ import {
 	NotFoundError
 } from "./IInsightFacade";
 import JSZip from "jszip";
-
+import QueryEngine from "../helper/QueryEngine";
+import {TestDataset} from "../helper/dataset";
 
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
  */
 
-/**
- * Self-designed types
- * TODO: Consider rename. Consider Persistent this.
- */
-interface TestDataset {
-	id: string;
-	kind: InsightDatasetKind;
-	numRows: number;
-	content: string;
-	// Map< ClassName, ClassObject >
-	coursesObj: Map<string, string>;
-}
 
 export default class InsightFacade implements IInsightFacade {
 
@@ -33,7 +22,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	constructor() {
 		console.log("InsightFacadeImpl::init()");
-		this.insightDatasets = [];
+		this.insightDatasets = this.PersistenceRead();
 	}
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -51,32 +40,11 @@ export default class InsightFacade implements IInsightFacade {
 			(e) => Promise.reject(new InsightError(e + id))
 		);
 
-
-		/*
-		// TODO: Should be merged into ObjectParseHelper
-
-		if (await InsightFacade.HasBlankJson(jszip)) {
-			return Promise.reject(new InsightError("Found a empty json file"));
-		}
-
-		let a = await jszip.folder("courses")?.files;
-		let fileList;
-		if (a === undefined) {
-			return Promise.reject(new InsightError("File Reading Error"));
-		} else if (Object.keys(a).length === 1) {
-			return Promise.reject(new InsightError("Empty folder"));
-		} else {
-			fileList = jszip.files;
-		}
-		 */
-
-
 		// Parse objects and create new testDataset Object.
 		let Obj: Map<string, string> = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
 			return Promise.reject(new InsightError(e));
 		});
 
-		// TODO: Merge this into ObjectParseHelper?
 		const numRows = this.NumRowsHelper(Obj);
 
 		// push this dataset into the dataset list
@@ -98,7 +66,7 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public removeDataset(id: string): Promise<string> {
-		// Check the ID before adding it
+		// Check the ID before remove it
 		switch (InsightFacade.IDValidTest(id)) {
 			case -1: 	return Promise.reject(new InsightError(id + " contains only whitespace."));
 			case -2: 	return Promise.reject(new InsightError(id + " contains underscore."));
@@ -107,27 +75,30 @@ export default class InsightFacade implements IInsightFacade {
 		// The remove method of array will cause an "undefined" element remain in that position.
 		// So constructing a new Dataset array without the deleted element here can avoid that problem.
 		let tempDataset: TestDataset[] = [];
-		let foundFlag: number = 0;
+		let foundFlag: boolean = false;
 		for(let dataset of this.insightDatasets) {
-			if(dataset.id === id) {
-				foundFlag = 1;
+			if (dataset.id === id) {
+				foundFlag = true;
 				continue;
 			}
 			tempDataset.push(dataset);
 		}
 
-		if(foundFlag === 0) {
+		if(!foundFlag) {
 			// Didn't find ID in array:
 			return Promise.reject(new NotFoundError(id + " is not found."));
 		} else {
 			// Update datasets.
 			this.insightDatasets = tempDataset;
+			this.PersistenceWrite();
 			return Promise.resolve(id);
 		}
 	}
 
-	public performQuery(query: unknown): Promise<InsightResult[]> {
-		return Promise.reject("Not implemented.");
+	public async performQuery(query: unknown): Promise<InsightResult[]> {
+		let engine = new QueryEngine(this.insightDatasets);
+
+		return engine.queryEngine(query);
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
@@ -150,6 +121,12 @@ export default class InsightFacade implements IInsightFacade {
 		* -------------------------
 	 */
 
+	/**
+	 * This is a helper function for checking ID validity.
+	 * @param id string
+	 * @return true: ID is valid OR
+	 * @return InsightError: ID is not valid, reason is in error reason.
+	 */
 	private IDIsValid(id: string): boolean|InsightError {
 		switch (InsightFacade.IDValidTest(id)) {
 			case -1:
@@ -268,9 +245,7 @@ export default class InsightFacade implements IInsightFacade {
 			/** Files good, return the object hashmap */
 			return Promise.resolve(a);
 		}
-
 	}
-
 
 	/**
 	 * This is a helper function for listing all IDs.
@@ -282,6 +257,20 @@ export default class InsightFacade implements IInsightFacade {
 			ids.push(dataset.id);
 		}
 		return ids;
+	}
+
+	private PersistenceRead(): TestDataset[]{
+		// TODO: Read the data structure from disk
+		console.log("PersistenceRead() To be implemented");
+		return [];
+	}
+
+	private PersistenceWrite(): void{
+		// TODO: Write the data structure to disk
+		// this.insightDatasets = this.insightDatasets;
+		let tempDataset: TestDataset[] = this.insightDatasets;
+		this.insightDatasets = tempDataset;
+		console.log("PersistenceWrite To be implemented");
 	}
 
 }
