@@ -1,13 +1,45 @@
 
 import {QueryType} from "./queryStructure";
+import exp from "constants";
 
 
 // check if the query only has where and options and in right order
+
 export function checkQuery1(query: unknown){
 	let query2: any = query as any;
 	return (Object.keys(query2).length === 2) && (Object.keys(query2)[0] === "WHERE")
 		&& (Object.keys(query2)[1] === "OPTIONS");
 }
+
+
+// check if the option is valid. the lenght of Object.keys(opt) should be 1 or 2.
+export function checkQueryOPTIONS(query: unknown)  {
+	let query2: any = query as any;
+	let opt = query2["OPTIONS"];
+	if(opt === null || opt === undefined) {
+		return false;
+	}
+	if (Object.keys(opt).length < 1 || Object.keys(opt).length > 2) {
+		return false;
+	}
+	if (Object.keys(opt).length === 1 &&  Object.keys(opt)[0] === "COLUMNS") {
+		return checkColumn(opt["COLUMNS"]);
+	}
+	if (Object.keys(opt).length === 2 && Object.keys(opt)[0] === "COLUMNS" && Object.keys(opt)[1] === "ORDER") {
+		return (checkColumn(opt["COLUMNS"]) && checkOrder(opt["ORDER"]));
+	} else {
+		return false;
+	}
+}
+// check if the column is an arrary
+export function checkColumn(col: any) {
+	return false;
+}
+
+export function checkOrder(ord: any) {
+	return false;
+}
+
 
 // check if where is valid
 export function checkQueryWhere(query: unknown)  {
