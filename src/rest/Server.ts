@@ -1,6 +1,7 @@
 import express, {Application, Request, Response} from "express";
 import * as http from "http";
-import cors from "cors";
+// TODO
+// import cors from "cors";
 
 export default class Server {
 	private readonly port: number;
@@ -75,7 +76,7 @@ export default class Server {
 		this.express.use(express.raw({type: "application/*", limit: "10mb"}));
 
 		// enable cors in request headers to allow cross-origin HTTP requests
-		this.express.use(cors());
+		// this.express.use(cors());
 	}
 
 	// Registers all request handlers to routes
