@@ -31,6 +31,7 @@ export function checkQueryOPTIONS(query: unknown)  {
 		return false;
 	}
 }
+
 // check if the column is an arrary
 export function checkColumn(col: any) {
 	return false;

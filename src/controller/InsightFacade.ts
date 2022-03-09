@@ -9,7 +9,8 @@ import {
 import JSZip from "jszip";
 import QueryEngine from "../helper/QueryEngine";
 import {TestDataset} from "../helper/dataset";
-
+import {DataStore} from "../helper/dataStore";
+import * as fs from "fs-extra";
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
@@ -59,7 +60,7 @@ export default class InsightFacade implements IInsightFacade {
 		this.insightDatasets.push(testDataset);
 
 		// TODO :PERSISTENCE
-
+		this.PersistenceWrite();
 		// Fetch IDs of datasets for return
 		return Promise.resolve(this.ListIDs());
 
@@ -261,15 +262,26 @@ export default class InsightFacade implements IInsightFacade {
 
 	private PersistenceRead(): TestDataset[]{
 		// TODO: Read the data structure from disk
-		console.log("PersistenceRead() To be implemented");
-		return [];
+		let ds = new DataStore( "./data/");
+		return ds.testRead() as TestDataset[];
 	}
 
 	private PersistenceWrite(): void{
 		// TODO: Write the data structure to disk
 		// this.insightDatasets = this.insightDatasets;
-		let tempDataset: TestDataset[] = this.insightDatasets;
-		this.insightDatasets = tempDataset;
+		let persistenceDir = "./data/";
+		let ds = new DataStore(persistenceDir);
+		if(!fs.pathExistsSync(persistenceDir)) {
+			console.log("MKDIR");
+			fs.mkdirSync(persistenceDir);
+		} else {
+			console.log("fileWiped");
+			fs.removeSync(persistenceDir);
+			fs.mkdirSync(persistenceDir);
+		}
+		this.insightDatasets.forEach((dataset) => {
+			ds.testStore(dataset, dataset.id);
+		});
 		console.log("PersistenceWrite To be implemented");
 	}
 
