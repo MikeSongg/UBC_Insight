@@ -9,7 +9,7 @@ import {
 import JSZip from "jszip";
 import QueryEngine from "../helper/QueryEngine";
 import {TestDataset} from "../helper/dataset";
-
+import {DataStore} from "../helper/dataStore";
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
@@ -23,6 +23,9 @@ export default class InsightFacade implements IInsightFacade {
 	constructor() {
 		console.log("InsightFacadeImpl::init()");
 		this.insightDatasets = this.PersistenceRead();
+		this.insightDatasets.forEach((dataset) => {
+			console.log(dataset.id);
+		});
 	}
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -59,6 +62,8 @@ export default class InsightFacade implements IInsightFacade {
 		this.insightDatasets.push(testDataset);
 
 		// TODO :PERSISTENCE
+		let dataHandler = new DataStore();
+		dataHandler.testStore(testDataset, id);
 
 		// Fetch IDs of datasets for return
 		return Promise.resolve(this.ListIDs());
@@ -261,15 +266,17 @@ export default class InsightFacade implements IInsightFacade {
 
 	private PersistenceRead(): TestDataset[]{
 		// TODO: Read the data structure from disk
-		console.log("PersistenceRead() To be implemented");
-		return [];
+		let ds = new DataStore( "./data/");
+		return ds.testRead() as TestDataset[];
 	}
 
 	private PersistenceWrite(): void{
 		// TODO: Write the data structure to disk
 		// this.insightDatasets = this.insightDatasets;
-		let tempDataset: TestDataset[] = this.insightDatasets;
-		this.insightDatasets = tempDataset;
+		let ds = new DataStore( "./data/");
+		this.insightDatasets.forEach((dataset) => {
+			ds.testStore(dataset, dataset.id);
+		});
 		console.log("PersistenceWrite To be implemented");
 	}
 
