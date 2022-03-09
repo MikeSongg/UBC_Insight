@@ -202,6 +202,30 @@ describe("InsightFacade", function () {
 					});
 				});
 		});
+
+		it ("should be persistence",  function () {
+			const id1: string = "courses";
+			const content: string = datasetContents.get("courses") ?? "";
+			return insightFacade.addDataset(id1, content, InsightDatasetKind.Courses)
+				.then(() => {
+					return insightFacade.addDataset(id1 + "Beep",content,InsightDatasetKind.Courses);
+				})
+				.then(() => {
+					let a = new InsightFacade();
+					return a.listDatasets();
+				})
+				.then((insightDatasets) => {
+					expect(insightDatasets).to.be.an.instanceof(Array);
+					expect(insightDatasets).to.have.length(2);
+					const insightDatasetCourses = insightDatasets.find((dataset) => dataset.id === "courses");
+					expect(insightDatasetCourses).to.exist;
+					expect(insightDatasetCourses).to.deep.equal({
+						id: "courses",
+						kind: InsightDatasetKind.Courses,
+						numRows: 64612,
+					});
+				});
+		});
 	});
 
 	/*

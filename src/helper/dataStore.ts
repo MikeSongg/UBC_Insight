@@ -15,11 +15,19 @@ export class DataStore {
 		}
 	}
 
-	public testStore(datasetToStore: unknown, fileName: string){
-		let dataString = JSON.stringify(datasetToStore);
-		if(!fs.pathExistsSync(this.persistenceDir)) {
-			fs.mkdirSync(this.persistenceDir);
-		}
+	public testStore(datasetToStore: object, fileName: string){
+		console.log("File added:" + fileName);
+		let dataString = JSON.stringify(datasetToStore, (key, value) => {
+			if (value instanceof Map) {
+				return {
+					dataType: "Map",
+					value: Array.from(value.entries()),
+				};
+			} else {
+				return value;
+			}
+		});
+
 		fs.writeFileSync(this.persistenceDir + fileName + ".json", dataString);
 	}
 
@@ -30,7 +38,14 @@ export class DataStore {
 			let fileNameList = fs.readdirSync(this.persistenceDir);
 			fileNameList.forEach((file) => {
 				fileContentList.push(JSON.parse(
-					fs.readFileSync(this.persistenceDir + file, {encoding: "utf-8"})));
+					fs.readFileSync(this.persistenceDir + file, {encoding: "utf-8"}), (key, value) => {
+						if(typeof value === "object" && value !== null) {
+							if (value.dataType === "Map") {
+								return new Map(value.value);
+							}
+						}
+						return value;
+					}));
 			});
 		}
 
