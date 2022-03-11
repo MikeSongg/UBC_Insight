@@ -67,12 +67,15 @@ export default class QueryEngine {
 		*/
 
 		// let selectedCoursesStr: object
+
+		/*
 		let tempCourseObj = this.fetchCourseObj("courses");
 		if(tempCourseObj instanceof NotFoundError) {
 			return Promise.reject(tempCourseObj);
 		} else {
 			console.log("Haha");
 		}
+		 */
 		return Promise.reject("TODO");
 	}
 
@@ -117,6 +120,7 @@ export default class QueryEngine {
 	 * @return boolean
 	 * the first element in this array will be dataset_id, the second will be dataset_key.
 	 */
+	/*
 	private fetchCourseObj(key: string): Map<string, CourseObject> | NotFoundError {
 		// Maybe it's possible to make this async?
 		let selectedDataset: Map<string, CourseObject> | undefined;
@@ -133,6 +137,7 @@ export default class QueryEngine {
 			return selectedDataset;
 		}
 	}
+	 */
 
 	/**
 	 * @private

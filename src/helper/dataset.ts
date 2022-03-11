@@ -12,20 +12,47 @@ export interface TestDataset {
 	numRows: number;
 	content: string;
 	// Map< ClassName, ClassObject >
-	coursesObj: Map<string, CourseObject>;
+	coursesObj: CourseObject[];
+}
+
+interface OriginalCourseObject {
+	Subject: 			string; // Subject
+	Course:				string; // Course
+	Avg:			number; // Avg
+	Professor:		string; // Professor
+	Title:			string; // Title
+	Pass:			number; // Pass
+	Fail:			number; // Fail
+	Audit:			number; // Audit
+	id:			number; // id
+	Year:			string; // year
 }
 
 export interface CourseObject {
-	Subject: 		string; // dept
-	Course:			string; // id
-	Avg:			number; // avg
-	Professor:		string; // instructor
-	Title:			string; // title
-	Pass:			number; // pass
-	Fail:			number; // fail
-	Audit:			number; // audit
-	/** ID is number in original source but expected to be string in output. */
-	id:				number; // uuid
-	/** Year is string in original source but expected to be number in output. */
-	Year:			string; // year
+	dept: 			string; // Subject
+	id:				string; // Course
+	avg:			number; // Avg
+	instructor:		string; // Professor
+	title:			string; // Title
+	pass:			number; // Pass
+	fail:			number; // Fail
+	audit:			number; // Audit
+	uuid:			number; // id
+	year:			string; // Year
+}
+
+export function CourseObjectHelper(section: object): CourseObject{
+	let sec = section as OriginalCourseObject;
+	return {
+		dept: 			sec.Subject, // Subject
+		id:				sec.Course, // Course
+		avg:			sec.Avg, // Avg
+		instructor:		sec.Professor, // Professor
+		title:			sec.Title, // Title
+		pass:			sec.Pass, // Pass
+		fail:			sec.Fail, // Fail
+		audit:			sec.Audit, // Audit
+		uuid:			sec.id, // id
+		year:			sec.Year // Year
+	} as CourseObject;
 }

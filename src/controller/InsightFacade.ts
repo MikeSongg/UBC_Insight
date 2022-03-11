@@ -8,10 +8,9 @@ import {
 } from "./IInsightFacade";
 import JSZip from "jszip";
 import QueryEngine from "../helper/QueryEngine";
-import {CourseObject, TestDataset} from "../helper/dataset";
+import {CourseObject, TestDataset, CourseObjectHelper} from "../helper/dataset";
 import {DataStore} from "../helper/dataStore";
 import * as fs from "fs-extra";
-import {stringify} from "querystring";
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
@@ -28,7 +27,6 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		// TODO: the PERSISTENCE part, return REJECT here if necessary.
 
 		// Check the ID before adding it
 		let checkResult: boolean|InsightError = this.IDIsValid(id);
@@ -43,11 +41,11 @@ export default class InsightFacade implements IInsightFacade {
 		);
 
 		// Parse objects and create new testDataset Object.
-		let Obj: Map<string, CourseObject> = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
+		let Obj: CourseObject[] = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
 			return Promise.reject(new InsightError(e));
 		});
 
-		const numRows = this.NumRowsHelper(Obj);
+		const numRows = Obj.length;
 
 		// push this dataset into the dataset list
 		let testDataset: TestDataset;
@@ -60,7 +58,6 @@ export default class InsightFacade implements IInsightFacade {
 		};
 		this.insightDatasets.push(testDataset);
 
-		// TODO :PERSISTENCE
 		this.PersistenceWrite();
 		// Fetch IDs of datasets for return
 		return Promise.resolve(this.ListIDs());
@@ -178,28 +175,14 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	/**
-	 * This is a helper function for counting NumRows.
-	 * @param courseObject Map<string, string>
-	 * @return number
-	 */
-	private NumRowsHelper(courseObject: Map<string, CourseObject>): number {
-		let numRows: number = 0;
-		courseObject.forEach(((value) => {
-			let objString = JSON.stringify(value);
-			numRows += JSON.parse(objString).result.length;
-		}));
-		return numRows;
-	}
-
-	/**
 	 * This is a helper function for parsing course objects.
 	 * This is a complicate function, please check comments inside.
 	 * @param jszip JSZip
 	 * @return Promise<Map<string, string>>
 	 */
-	private static async ObjectParseHelper(jszip: JSZip): Promise<Map<string, CourseObject>> {
+	private static async ObjectParseHelper(jszip: JSZip): Promise<CourseObject[]> {
 		/** NOTE: Map < key, Object> */
-		let a = new Map<string, CourseObject>();
+		let a = new Array<CourseObject>();
 
 		/** This set of Promises contains the Promise of every file parsing. */
 		let PromiseSet: Array<Promise<boolean>> = [];
@@ -222,8 +205,12 @@ export default class InsightFacade implements IInsightFacade {
 							return Promise.reject();
 						} else {
 							/** File ok, parse and push. */
-							let cObj = JSON.parse(str) as CourseObject;
-							a.set(file, cObj);
+							let sectionList = JSON.parse(str).result as object[];
+							// a.push(cObj);
+
+							for(let section in sectionList) {
+								a.push(CourseObjectHelper(sectionList[section]));
+							}
 							return true;
 						}
 					}).catch( (e) => {
