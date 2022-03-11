@@ -117,9 +117,9 @@ export default class QueryEngine {
 	 * @return boolean
 	 * the first element in this array will be dataset_id, the second will be dataset_key.
 	 */
-	private fetchCourseObj(key: string): Map<string, string> | NotFoundError {
+	private fetchCourseObj(key: string): Map<string, CourseObject> | NotFoundError {
 		// Maybe it's possible to make this async?
-		let selectedDataset: Map<string, string> | undefined;
+		let selectedDataset: Map<string, CourseObject> | undefined;
 
 		this.insightDataset.forEach((dataset) => {
 			if(dataset.id === key) {

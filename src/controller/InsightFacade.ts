@@ -8,9 +8,10 @@ import {
 } from "./IInsightFacade";
 import JSZip from "jszip";
 import QueryEngine from "../helper/QueryEngine";
-import {TestDataset} from "../helper/dataset";
+import {CourseObject, TestDataset} from "../helper/dataset";
 import {DataStore} from "../helper/dataStore";
 import * as fs from "fs-extra";
+import {stringify} from "querystring";
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
@@ -23,7 +24,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	constructor() {
 		console.log("InsightFacadeImpl::init()");
-		this.insightDatasets = this.PersistenceRead();
+		this.insightDatasets = InsightFacade.PersistenceRead();
 	}
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -42,7 +43,7 @@ export default class InsightFacade implements IInsightFacade {
 		);
 
 		// Parse objects and create new testDataset Object.
-		let Obj: Map<string, string> = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
+		let Obj: Map<string, CourseObject> = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
 			return Promise.reject(new InsightError(e));
 		});
 
@@ -181,11 +182,11 @@ export default class InsightFacade implements IInsightFacade {
 	 * @param courseObject Map<string, string>
 	 * @return number
 	 */
-	private NumRowsHelper(courseObject: Map<string, string>): number {
-		// TODO
+	private NumRowsHelper(courseObject: Map<string, CourseObject>): number {
 		let numRows: number = 0;
 		courseObject.forEach(((value) => {
-			numRows += JSON.parse(value).result.length;
+			let objString = JSON.stringify(value);
+			numRows += JSON.parse(objString).result.length;
 		}));
 		return numRows;
 	}
@@ -196,9 +197,9 @@ export default class InsightFacade implements IInsightFacade {
 	 * @param jszip JSZip
 	 * @return Promise<Map<string, string>>
 	 */
-	private static async ObjectParseHelper(jszip: JSZip): Promise<Map<string, string>> {
+	private static async ObjectParseHelper(jszip: JSZip): Promise<Map<string, CourseObject>> {
 		/** NOTE: Map < key, Object> */
-		let a = new Map<string, string>();
+		let a = new Map<string, CourseObject>();
 
 		/** This set of Promises contains the Promise of every file parsing. */
 		let PromiseSet: Array<Promise<boolean>> = [];
@@ -221,7 +222,8 @@ export default class InsightFacade implements IInsightFacade {
 							return Promise.reject();
 						} else {
 							/** File ok, parse and push. */
-							a.set(file, str);
+							let cObj = JSON.parse(str) as CourseObject;
+							a.set(file, cObj);
 							return true;
 						}
 					}).catch( (e) => {
@@ -260,7 +262,7 @@ export default class InsightFacade implements IInsightFacade {
 		return ids;
 	}
 
-	private PersistenceRead(): TestDataset[]{
+	private static PersistenceRead(): TestDataset[]{
 		// TODO: Read the data structure from disk
 		let ds = new DataStore( "./data/");
 		return ds.testRead() as TestDataset[];
@@ -271,14 +273,10 @@ export default class InsightFacade implements IInsightFacade {
 		// this.insightDatasets = this.insightDatasets;
 		let persistenceDir = "./data/";
 		let ds = new DataStore(persistenceDir);
-		if(!fs.pathExistsSync(persistenceDir)) {
-			console.log("MKDIR");
-			fs.mkdirSync(persistenceDir);
-		} else {
-			console.log("fileWiped");
+		if(fs.pathExistsSync(persistenceDir)) {
 			fs.removeSync(persistenceDir);
-			fs.mkdirSync(persistenceDir);
 		}
+		fs.mkdirSync(persistenceDir);
 		this.insightDatasets.forEach((dataset) => {
 			ds.testStore(dataset, dataset.id);
 		});

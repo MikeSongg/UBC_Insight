@@ -12,7 +12,7 @@ export interface TestDataset {
 	numRows: number;
 	content: string;
 	// Map< ClassName, ClassObject >
-	coursesObj: Map<string, string>;
+	coursesObj: Map<string, CourseObject>;
 }
 
 export interface CourseObject {
