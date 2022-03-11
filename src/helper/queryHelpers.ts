@@ -3,15 +3,13 @@ import {QueryType} from "./queryStructure";
 import exp from "constants";
 import {CourseObject, TestDataset} from "./dataset";
 // check if the query only has where and options and in right order
-export function checkQuery1(query: unknown){
-	let query2: any = query as any;
-	return (Object.keys(query2).length === 2) && (Object.keys(query2)[0] === "WHERE")
-		&& (Object.keys(query2)[1] === "OPTIONS");
+export function checkQueryInitial(query: any){
+	return (Object.keys(query).length === 2) && (Object.keys(query)[0] === "WHERE")
+		&& (Object.keys(query)[1] === "OPTIONS");
 }
 // check if the option is valid. the lenght of Object.keys(opt) should be 1 or 2.
-export function checkQueryOPTIONS(query: unknown)  {
-	let query2: any = query as any;
-	let opt = query2["OPTIONS"];
+export function checkQueryOPTIONS(query: any)  {
+	let opt = query["OPTIONS"];
 	if(opt === null || opt === undefined) {
 		return false;
 	}
@@ -61,6 +59,7 @@ export function allSame(Arrary: string[]) {
 
 export function checkIdExist(Id: string, ) {
 	return false;
+	let id;
 }
 
 export function checkOrder(ord: any) {
@@ -75,9 +74,8 @@ export function checkOrder(ord: any) {
 
 
 // check if where is valid
-export function checkQueryWhere(query: unknown)  {
-	let query2: any = query as any;
-	let where = query2["WHERE"];
+export function checkQueryWhere(query: any)  {
+	let where = query["WHERE"];// query.WHERE
 	if(where === null || where === undefined) {
 		return false;
 	}
