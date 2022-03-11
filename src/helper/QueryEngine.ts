@@ -29,11 +29,11 @@ export default class QueryEngine {
 		if (!this.checkQueryWhere(where)) {
 			return Promise.reject(new InsightError("where is not valid"));
 		}
-		if (!this.checkQueryOPTIONS(where)) {
+		let opt = query["OPTIONS"];
+		if (!this.checkQueryOPTIONS(opt)) {
 			return Promise.reject(new InsightError("option is not valid"));
 		}
-		let columns = query.OPTIONS.COLUMNS;
-		return Promise.reject("TODO");
+		return Promise.reject(new InsightError("TODO"));
 	}
 
 	private  checkQueryInitialCourse(query: any){
@@ -41,7 +41,7 @@ export default class QueryEngine {
 			&& (Object.keys(query)[1] === "OPTIONS");
 	}
 
-	private  checkQueryWhere(where: any): boolean  {
+	private  checkQueryWhere(where: any)  {
 		if(where === null || where === undefined) {
 			return false;
 		}
@@ -103,11 +103,11 @@ export default class QueryEngine {
 			} else {
 				let datasetId = key.split("_") [0];
 				let mfield = key.split("_")[1];
-				let value = Object.values(obj)[1];
+				let value = Object.values(obj)[0];
 				if (typeof value !== "number") {
 					return false;
 				}
-				if (!(mfield === "avg" || mfield === "pass" || mfield === "fail" || mfield === "audit" ||
+				if ((mfield === "avg" || mfield === "pass" || mfield === "fail" || mfield === "audit" ||
 					mfield === "year")) {
 					return this.IdList.includes(datasetId);
 				}
@@ -131,7 +131,7 @@ export default class QueryEngine {
 				let datasetId = key.split("_") [0];
 				let sfield = key.split("_")[1];
 
-				let value = Object.values(obj)[1];
+				let value = Object.values(obj)[0];
 				if ((typeof value !== "string")) {
 					return false;
 				} else if ((sfield === "dept" || sfield === "id" || sfield === "instructor" || sfield === "title" ||
@@ -155,8 +155,8 @@ export default class QueryEngine {
 		return arr;
 	}
 
-	private  checkQueryOPTIONS(query: any)  {
-		let opt = query["OPTIONS"];
+	private  checkQueryOPTIONS(opt: any)  {
+
 		// let col = opt["COLUMNS"];
 		// let ord = opt["ORDER"];
 		if(opt === null || opt === undefined) {
