@@ -1,4 +1,4 @@
-import {InsightDatasetKind} from "../controller/IInsightFacade";
+import {InsightDatasetKind, InsightResult} from "../controller/IInsightFacade";
 
 
 /**
@@ -55,4 +55,17 @@ export function CourseObjectHelper(section: object): CourseObject{
 		uuid:			sec.id, // id
 		year:			sec.Year // Year
 	} as CourseObject;
+}
+
+export function CourseObjectToInsightResult(objList: CourseObject[]): InsightResult[] {
+	let insightResultList: InsightResult[] = [];
+	objList.forEach((cObj) => {
+		let insightResult: InsightResult = {};
+		let key: (keyof CourseObject);
+		for(key in cObj) {
+			insightResult[key] = cObj[key];
+		}
+		insightResultList.push(insightResult);
+	});
+	return insightResultList;
 }
