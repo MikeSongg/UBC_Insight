@@ -2,23 +2,22 @@ Please edit this template and commit to the master branch for your user stories 
 Make sure to follow the *Role, Goal, Benefit* framework for the user stories and the *Given/When/Then* framework for the Definitions of Done! You can also refer to the examples DoDs in [C3 spec](https://sites.google.com/view/ubc-cpsc310-21w2-intro-to-se/project/checkpoint-3).
 
 ## User Story 1
-As a \<role\>, I want to \<goal\>, so that \<benefit\>.
-
+As a student, I want to find the courses within a certain grade range and larger than a certain size, 
+so that I can take the course and expect to have a high score.
 
 #### Definitions of Done(s)
-Scenario 1: \<The name for the behaviour that will be described\>  
-Given: \<Some initial application state (precondition)\>  
-When: \<The user do some series of action\>  
-Then: \<Some outcome state is expected (post-condition)\>
+Scenario 1: Find the highest average course with a given major.
+Given: A database, a major, a grade limit(ceiling), a grade limit(floor).
+When: user clicks search button 
+Then: the course with the highest average grade in the major.
 
 ## User Story 2
-As a \<role\>, I want to \<goal\>, so that \<benefit\>.
-
+As a student, I want to search the courses taught by certain professor (in a certain major), so that I can take the popular class.
 
 #### Definitions of Done(s)
-Scenario 1: \<The name for the behaviour that will be described\>  
-Given: \<Some initial application state (precondition)\>  
-When: \<The user do some series of action\>  
+Scenario 2: 
+Given: A database, a subject.
+When:  
 Then: \<Some outcome state is expected (post-condition)\>
 
 ## Others
