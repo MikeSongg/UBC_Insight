@@ -1,44 +1,39 @@
-import {
-	InsightError,
-	InsightResult, NotFoundError,
-} from "../controller/IInsightFacade";
-import {CourseObject, TestDataset} from "./dataset";
 
-import {
-	IntendedBody, IntendedOptions,
-	IntendedQuery
-} from "./QueryTypes";
+import {TestDataset} from "./dataset";
 
+export class QueryCheck {
 
-export default class QueryEngine {
-	private insightDataset: TestDataset[];
 	private IdList: any[];
-	constructor(dataset: TestDataset[]) {
+	private insightDatasets: TestDataset[];
+
+	constructor(datasets: TestDataset[]) {
 		console.log("InsightFacadeImpl::init()");
-		this.insightDataset = dataset;
+		this.insightDatasets = datasets;
 		this.IdList = this.listDatasetId();
 	}
 
-	public async queryEngine(queryRequest: unknown): Promise<InsightResult[]> {
-		// TODO
+
+	public queryCheck(queryRequest: unknown) {
 		let query = queryRequest as any;
-		if (!this.checkQueryInitialCourse(query)) {
-			return Promise.reject(new InsightError("query is not valid"));
-		}
 		let where = query["WHERE"];// query.WHERE
-		if (!this.checkQueryWhere(where)) {
-			return Promise.reject(new InsightError("where is not valid"));
-		}
 		let opt = query["OPTIONS"];
-		if (!this.checkQueryOPTIONS(opt)) {
-			return Promise.reject(new InsightError("option is not valid"));
+		if (!this.checkQueryInitialCourse(query)) {
+			return false;
 		}
-		return Promise.reject(new InsightError("TODO"));
+		if (!this.checkQueryWhere(where)) {
+			return false;
+		}
+		if (!this.checkQueryOPTIONS(opt)) {
+			return false;
+		} else {
+			return true;
+		}
 	}
+
 
 	private  checkQueryInitialCourse(query: any){
 		return (Object.keys(query).length === 2) && (Object.keys(query)[0] === "WHERE")
-			&& (Object.keys(query)[1] === "OPTIONS");
+		&& (Object.keys(query)[1] === "OPTIONS");
 	}
 
 	private  checkQueryWhere(where: any)  {
@@ -108,15 +103,15 @@ export default class QueryEngine {
 					return false;
 				}
 				if ((mfield === "avg" || mfield === "pass" || mfield === "fail" || mfield === "audit" ||
-					mfield === "year")) {
+				mfield === "year")) {
 					return this.IdList.includes(datasetId);
 				}
 			}
 		}
-		// should also check if the datasedId is valid  and consisitent.
-		// if (datasetId != ID) {
-		// 	return false
-		// }
+	// should also check if the datasedId is valid  and consisitent.
+	// if (datasetId != ID) {
+	// 	return false
+	// }
 
 	}
 
@@ -132,10 +127,22 @@ export default class QueryEngine {
 				let sfield = key.split("_")[1];
 
 				let value = Object.values(obj)[0];
+
 				if ((typeof value !== "string")) {
 					return false;
-				} else if ((sfield === "dept" || sfield === "id" || sfield === "instructor" || sfield === "title" ||
-					sfield === "uuid")) {
+				}
+				let subvalues = value.split("*");
+				if (subvalues.length > 3 || subvalues.length < 1) {
+					return false;
+				}
+				if (subvalues.length === 3) {
+					return (subvalues[0] === "" && subvalues[2] === "");
+				}
+				if (subvalues.length === 2) {
+					return (subvalues[0] === "" || subvalues[1] === "");
+				}
+				if ((sfield === "dept" || sfield === "id" || sfield === "instructor" || sfield === "title" ||
+				sfield === "uuid")) {
 					return this.IdList.includes(datasetId);
 				}
 
@@ -149,7 +156,7 @@ export default class QueryEngine {
 // we need to make sure the id exist in datasets,
 	private listDatasetId() {
 		let arr: any = [];
-		this.insightDataset.forEach((obj) => {
+		this.insightDatasets.forEach((obj) => {
 			arr.push(obj.id);
 		});
 		return arr;
@@ -157,8 +164,8 @@ export default class QueryEngine {
 
 	private  checkQueryOPTIONS(opt: any)  {
 
-		// let col = opt["COLUMNS"];
-		// let ord = opt["ORDER"];
+	// let col = opt["COLUMNS"];
+	// let ord = opt["ORDER"];
 		if(opt === null || opt === undefined) {
 			return false;
 		}
@@ -169,8 +176,12 @@ export default class QueryEngine {
 			return this.checkColumn(opt["COLUMNS"]);
 		}
 		if (Object.keys(opt).length === 2 && Object.keys(opt)[0] === "COLUMNS" && Object.keys(opt)[1] === "ORDER") {
-			return (this.checkColumn(opt["COLUMNS"]) && this.checkOrder(opt["ORDER"]) && opt["COLUMNS"].
-				includes(opt["ORDER"]));
+			if (!opt["COLUMNS"].includes(opt["ORDER"])) {
+				return false;
+			} else {
+				return (this.checkColumn(opt["COLUMNS"]) && this.checkOrder(opt["ORDER"]));
+			}
+
 		}
 	}
 
@@ -184,8 +195,8 @@ export default class QueryEngine {
 				let datasetId = key.split("_")[0];
 				let field = key.split("_")[1];
 				if (!(field === "avg" || field === "pass" || field === "fail" || field === "audit" || field === "year"
-					|| field === "dept" || field === "id" || field === "instructor" || field === "title" || field
-					=== "uuid"
+				|| field === "dept" || field === "id" || field === "instructor" || field === "title" || field
+				=== "uuid"
 				)) {
 					return false;
 				} else if (!this.IdList.includes(datasetId)) {
@@ -193,8 +204,13 @@ export default class QueryEngine {
 				} else {
 					fieldArrary.push(field);
 					idArrary.push(datasetId);
-					return (this.allSame(idArrary) && this.checkArrayUnique(fieldArrary));
+
 				}
+			}
+			if (!(this.allSame(idArrary) )) {
+				return false;
+			} else {
+				return this.checkArrayUnique(fieldArrary);
 			}
 		}
 
@@ -223,5 +239,4 @@ export default class QueryEngine {
 		}
 
 	}
-
 }

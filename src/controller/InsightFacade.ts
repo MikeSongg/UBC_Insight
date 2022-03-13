@@ -7,10 +7,11 @@ import {
 	NotFoundError
 } from "./IInsightFacade";
 import JSZip from "jszip";
-import QueryEngine from "../helper/QueryEngine";
 import {CourseObject, TestDataset, CourseObjectHelper} from "../helper/dataset";
 import {DataStore} from "../helper/dataStore";
 import * as fs from "fs-extra";
+import {QueryCheck} from "../helper/QueryCheck";
+import {QueryCompute} from "../helper/QueryCompute";
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
@@ -95,9 +96,16 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
-		let engine = new QueryEngine(this.insightDatasets);
+		let Check = new QueryCheck(this.insightDatasets);
+		let compute = new QueryCompute(this.insightDatasets);
+		// let engine = new QueryEngine(this.insightDatasets);
+		if (Check.queryCheck(query)) {
+			return compute.queryCompute(query);
+		} else {
+			return Promise.reject(new InsightError("query not valid"));
+		}
 
-		return engine.queryEngine(query);
+		// return engine.queryEngine(query);
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {

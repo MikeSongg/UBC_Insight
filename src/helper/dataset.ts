@@ -24,8 +24,8 @@ interface OriginalCourseObject {
 	Pass:			number; // Pass
 	Fail:			number; // Fail
 	Audit:			number; // Audit
-	id:			number; // id
-	Year:			string; // year
+	id:				string; // id
+	Year:			number; // year
 }
 
 export interface CourseObject {
@@ -37,8 +37,8 @@ export interface CourseObject {
 	pass:			number; // Pass
 	fail:			number; // Fail
 	audit:			number; // Audit
-	uuid:			number; // id
-	year:			string; // Year
+	uuid:			string; // id
+	year:			number; // Year
 }
 
 export function CourseObjectHelper(section: object): CourseObject{

@@ -8,12 +8,21 @@
   "input": {
 
     "WHERE":{
+		"AND": [
+	{"GT" : {
 
-      "GT":{
+		"courses_avg":97
 
-        "courses_av":97
+	}
+	}, {"GT" : {
 
-      }
+				"courses_pas":97
+
+			}
+			}
+]
+
+
 
     },
 
