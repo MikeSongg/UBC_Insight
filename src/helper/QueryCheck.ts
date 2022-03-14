@@ -15,8 +15,14 @@ export class QueryCheck {
 
 	public queryCheck(queryRequest: unknown) {
 		let query = queryRequest as any;
+		if (query === null || query === undefined) {
+			return false;
+		}
 		let where = query["WHERE"];// query.WHERE
 		let opt = query["OPTIONS"];
+		if (where === undefined || where === null || opt === undefined || opt === null) {
+			return false;
+		}
 		if (!this.checkQueryInitialCourse(query)) {
 			return false;
 		}
@@ -163,12 +169,6 @@ export class QueryCheck {
 	}
 
 	private  checkQueryOPTIONS(opt: any)  {
-
-	// let col = opt["COLUMNS"];
-	// let ord = opt["ORDER"];
-		if(opt === null || opt === undefined) {
-			return false;
-		}
 		if (Object.keys(opt).length < 1 || Object.keys(opt).length > 2) {
 			return false;
 		}
@@ -182,6 +182,8 @@ export class QueryCheck {
 				return (this.checkColumn(opt["COLUMNS"]) && this.checkOrder(opt["ORDER"]));
 			}
 
+		} else {
+			return false;
 		}
 	}
 
