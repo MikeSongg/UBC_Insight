@@ -22,7 +22,7 @@ export class QueryCompute {
 			throw new InsightError("not defined");
 		}
 		let sectionsOrig = queryDataset.coursesObj;
-		if (where.length === 0) {
+		if (Object.keys(where).length === 0) {
 			this.filteredSections = sectionsOrig;
 		} else {
 			this.filteredSections = this.computeWHEREFilter(where,sectionsOrig);

@@ -4,7 +4,7 @@ import {
 	InsightDatasetKind,
 	InsightError,
 	InsightResult,
-	NotFoundError
+	NotFoundError, ResultTooLargeError
 } from "./IInsightFacade";
 import JSZip from "jszip";
 import {CourseObject, TestDataset, CourseObjectHelper} from "../helper/dataset";
@@ -100,7 +100,11 @@ export default class InsightFacade implements IInsightFacade {
 		let compute = new QueryCompute(this.insightDatasets);
 		// let engine = new QueryEngine(this.insightDatasets);
 		if (Check.queryCheck(query)) {
-			return compute.queryCompute(query);
+			if (compute.queryCompute(query).length > 5000) {
+				return Promise.reject(new ResultTooLargeError("the result is over 5000"));
+			} else {
+				return compute.queryCompute(query);
+			}
 		} else {
 			return Promise.reject(new InsightError("query not valid"));
 		}
