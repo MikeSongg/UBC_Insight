@@ -16,6 +16,7 @@ export interface TestDataset {
 }
 
 interface OriginalCourseObject {
+	Section:            string;
 	Subject: 			string; // Subject
 	Course:				string; // Course
 	Avg:			number; // Avg
@@ -24,8 +25,8 @@ interface OriginalCourseObject {
 	Pass:			number; // Pass
 	Fail:			number; // Fail
 	Audit:			number; // Audit
-	id:				string; // id
-	Year:			number; // year
+	id:				number; // id
+	Year:			string; // year
 }
 
 export interface CourseObject {
@@ -52,8 +53,8 @@ export function CourseObjectHelper(section: object): CourseObject{
 		pass:			sec.Pass, // Pass
 		fail:			sec.Fail, // Fail
 		audit:			sec.Audit, // Audit
-		uuid:			sec.id, // id
-		year:			sec.Year // Year
+		uuid:			sec.id.toString(), // id
+		year:			(sec.Section === "overall") ? 1900 : parseInt(sec.Year,10) // Year
 	} as CourseObject;
 }
 

@@ -130,7 +130,7 @@ export class QueryCompute {
 					arr.push(sec);
 				}
 					break;
-				case "id": if (sec.id === value) {
+				case "year": if (sec.id === value) {
 					arr.push(sec);
 				}
 					break;
@@ -164,7 +164,7 @@ export class QueryCompute {
 					arr.push(sec);
 				}
 					break;
-				case "id": if (sec.id < value) {
+				case "year": if (sec.id < value) {
 					arr.push(sec);
 				}
 					break;
@@ -196,7 +196,7 @@ export class QueryCompute {
 					arr.push(sec);
 				}
 					break;
-				case "id": if (sec.id > value) {
+				case "year": if (sec.id > value) {
 					arr.push(sec);
 				}
 					break;
