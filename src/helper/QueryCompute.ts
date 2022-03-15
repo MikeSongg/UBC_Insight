@@ -11,7 +11,7 @@ export class QueryCompute {
 		this.insightDatasets = datasets;
 	}
 
-	public queryCompute( query: any ): InsightResult[] {
+	public queryCompute( query: any ): InsightResult[] | InsightError {
 		let opt = query["OPTIONS"];
 		let col = opt["COLUMNS"];
 		let where = query["WHERE"];
@@ -19,15 +19,19 @@ export class QueryCompute {
 		let queryDatasetId = key.split("_")[0];
 		let queryDataset = this.insightDatasets.find((e) => e.id === queryDatasetId);
 		if (queryDataset === undefined) {
-			throw new InsightError("not defined");
+			return new InsightError("not defined");
 		}
 		let sectionsOrig = queryDataset.coursesObj;
 		if (Object.keys(where).length === 0) {
-			this.filteredSections = sectionsOrig;
+			if(sectionsOrig !== undefined) {
+				this.filteredSections = sectionsOrig;
+			} else {
+				return new InsightError("CourseObject[] Undefined!");
+			}
 		} else {
 			this.filteredSections = this.computeWHEREFilter(where,sectionsOrig);
 		}
-		return this.computeOPT(opt,this.filteredSections);
+		return QueryCompute.computeOPT(opt,this.filteredSections);
 
 	}
 
@@ -41,16 +45,16 @@ export class QueryCompute {
 		}
 
 		if (filter === "GT") {
-			return this.computeGT(where[filter], filteredData);
+			return QueryCompute.computeGT(where[filter], filteredData);
 		}
 		if (filter === "LT") {
-			return this.computeLT(where[filter], filteredData);
+			return QueryCompute.computeLT(where[filter], filteredData);
 		}
 		if (filter === "EQ") {
-			return this.computeEQ(where[filter], filteredData);
+			return QueryCompute.computeEQ(where[filter], filteredData);
 		}
 		if ((filter === "IS") ){
-			return this.computeIs(where[filter], filteredData);
+			return QueryCompute.computeIs(where[filter], filteredData);
 		} else {
 			return this.computeNOT(where[filter], filteredData);
 		}
@@ -67,7 +71,7 @@ export class QueryCompute {
 
 	}
 
-	private computeIs(obj: any, filteredSections: CourseObject[]) {
+	private static computeIs(obj: any, filteredSections: CourseObject[]) {
 		let key = Object.keys(obj)[0];// course_uuid
 		let value = Object.values(obj)[0]; // "1234"
 		if (typeof value !== "string") {
@@ -107,7 +111,7 @@ export class QueryCompute {
 		// we should also add dataset as paramenter
 	}
 
-	private computeEQ(obj: any, filteredSections: CourseObject[]) {
+	private static computeEQ(obj: any, filteredSections: CourseObject[]) {
 		let key = Object.keys(obj)[0];// course_avg
 		let value = Object.values(obj)[0]; // 97
 		let arr = [];
@@ -140,7 +144,7 @@ export class QueryCompute {
 	}
 
 // considering add a new parameter for original data
-	private computeLT(obj: any,filteredSections: CourseObject[]) {
+	private static computeLT(obj: any, filteredSections: CourseObject[]) {
 		let key = Object.keys(obj)[0];// course_avg
 		// let value = Object.values(obj)[0]; // 97
 		let value = obj[key]; // 97
@@ -173,7 +177,7 @@ export class QueryCompute {
 		return arr;
 	}
 
-	private computeGT(obj: any,filteredSections: CourseObject[]) {
+	private static computeGT(obj: any, filteredSections: CourseObject[]) {
 		let key = Object.keys(obj)[0];// course_avg
 		let value = obj[key]; // 97
 		let arr = [];
@@ -205,18 +209,18 @@ export class QueryCompute {
 		return arr;
 	}
 
-	private  computeOPT(opt: any,sections: CourseObject[]) {
+	private static computeOPT(opt: any, sections: CourseObject[]) {
 		if (Object.keys(opt).length === 1) {
-			return this.computeCOLUMNS(opt["COLUMNS"],sections);
+			return QueryCompute.computeCOLUMNS(opt["COLUMNS"],sections);
 		} else {
-			this.computeORDER(opt["ORDER"],sections);
-			return this.computeCOLUMNS(opt["COLUMNS"],sections);
+			QueryCompute.computeORDER(opt["ORDER"],sections);
+			return QueryCompute.computeCOLUMNS(opt["COLUMNS"],sections);
 		}
 
 	}
 
 	// col is an arrary of keys
-	private computeCOLUMNS(col: any,sections: CourseObject[]): InsightResult[]{
+	private static computeCOLUMNS(col: any, sections: CourseObject[]): InsightResult[]{
 		let keyList: string[] = [];
 		let resultList: InsightResult[] = [];
 		let dataSetId = col[0].split("_")[0];
@@ -258,7 +262,7 @@ export class QueryCompute {
 
 	}
 
-	private computeORDER(ord: any,sections: CourseObject[]) {
+	private static computeORDER(ord: any, sections: CourseObject[]) {
 		let mkey = ord.split("_")[1]; // this should be "avg"
 		switch(mkey){
 			case "avg": sections.sort(function(a, b) {

@@ -6,13 +6,14 @@ import {InsightDatasetKind, InsightResult} from "../controller/IInsightFacade";
  * TODO: Consider rename. Consider Persistent this.
  */
 
-export interface TestDataset {
+interface TestDataset {
 	id: string;
 	kind: InsightDatasetKind;
 	numRows: number;
 	content: string;
 	// Map< ClassName, ClassObject >
-	coursesObj: CourseObject[];
+	coursesObj?: CourseObject[];
+	classRoomObj?: ClassRoomObject[];
 }
 
 interface OriginalCourseObject {
@@ -29,7 +30,7 @@ interface OriginalCourseObject {
 	Year:			string; // year
 }
 
-export interface CourseObject {
+interface CourseObject {
 	dept: 			string; // Subject
 	id:				string; // Course
 	avg:			number; // Avg
@@ -42,7 +43,12 @@ export interface CourseObject {
 	year:			number; // Year
 }
 
-export function CourseObjectHelper(section: object): CourseObject{
+interface ClassRoomObject {
+	[key: string]: unknown;
+	// TODO
+}
+
+function CourseObjectHelper(section: object): CourseObject{
 	let sec = section as OriginalCourseObject;
 	return {
 		dept: 			sec.Subject, // Subject
@@ -58,7 +64,7 @@ export function CourseObjectHelper(section: object): CourseObject{
 	} as CourseObject;
 }
 
-export function CourseObjectToInsightResult(objList: CourseObject[]): InsightResult[] {
+function CourseObjectToInsightResult(objList: CourseObject[]): InsightResult[] {
 	let insightResultList: InsightResult[] = [];
 	objList.forEach((cObj) => {
 		let insightResult: InsightResult = {};
@@ -70,3 +76,29 @@ export function CourseObjectToInsightResult(objList: CourseObject[]): InsightRes
 	});
 	return insightResultList;
 }
+
+function createTestDataset(id: string, content: string, kind: InsightDatasetKind,
+	numRows: number, parsedObj: object[]): TestDataset {
+	let testDataset: TestDataset;
+	testDataset = {
+		id: id,
+		content: content,
+		kind: kind,
+		numRows: numRows,
+		coursesObj: [],
+	};
+	if(kind === InsightDatasetKind.Courses) {
+		testDataset.coursesObj = parsedObj as CourseObject[];
+	} else if (kind === InsightDatasetKind.Rooms) {
+		testDataset.classRoomObj = parsedObj as ClassRoomObject[];
+	}
+	return testDataset;
+}
+
+export {TestDataset,
+	CourseObject,
+	ClassRoomObject,
+	CourseObjectHelper,
+	CourseObjectToInsightResult,
+	createTestDataset
+};

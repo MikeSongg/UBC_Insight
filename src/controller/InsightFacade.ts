@@ -7,11 +7,18 @@ import {
 	NotFoundError, ResultTooLargeError
 } from "./IInsightFacade";
 import JSZip from "jszip";
-import {CourseObject, TestDataset, CourseObjectHelper} from "../helper/dataset";
+import {
+	CourseObject,
+	ClassRoomObject,
+	CourseObjectHelper,
+	TestDataset,
+	createTestDataset,
+} from "../helper/dataset";
 import {DataStore} from "../helper/dataStore";
 import * as fs from "fs-extra";
 import {QueryCheck} from "../helper/QueryCheck";
 import {QueryCompute} from "../helper/QueryCompute";
+
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
@@ -41,23 +48,25 @@ export default class InsightFacade implements IInsightFacade {
 			(e) => Promise.reject(new InsightError(e + id))
 		);
 
+		let parsedObj: CourseObject[] | ClassRoomObject[] = [];
 		// Parse objects and create new testDataset Object.
-		let Obj: CourseObject[] = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
-			return Promise.reject(new InsightError(e));
-		});
+		if(kind === InsightDatasetKind.Courses) {
+			let tempObj: CourseObject[] = await InsightFacade.ObjectParseHelper(jszip).catch((e) => {
+				return Promise.reject(new InsightError(e));
+			});
+			parsedObj = tempObj;
+			const numRows = parsedObj.length;
+			let testDataset: TestDataset = createTestDataset(id, content, kind, numRows, parsedObj);
+			this.insightDatasets.push(testDataset);
 
-		const numRows = Obj.length;
+		} else if(kind === InsightDatasetKind.Rooms) {
+			// TODO: Parse!
+		} else {
+			return Promise.reject(new InsightError("Unknown InsightDatasetKind"));
+		}
+
 
 		// push this dataset into the dataset list
-		let testDataset: TestDataset;
-		testDataset = {
-			id: id,
-			content: content,
-			kind: kind,
-			numRows: numRows,
-			coursesObj: Obj
-		};
-		this.insightDatasets.push(testDataset);
 
 		this.PersistenceWrite();
 		// Fetch IDs of datasets for return
@@ -98,18 +107,18 @@ export default class InsightFacade implements IInsightFacade {
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
 		let Check = new QueryCheck(this.insightDatasets);
 		let compute = new QueryCompute(this.insightDatasets);
-		// let engine = new QueryEngine(this.insightDatasets);
 		if (Check.queryCheck(query)) {
-			if (compute.queryCompute(query).length > 5000) {
+			let computedQuery = compute.queryCompute(query);
+			if(computedQuery instanceof InsightError) {
+				return Promise.reject(computedQuery);
+			} else if (computedQuery.length > 5000) {
 				return Promise.reject(new ResultTooLargeError("the result is over 5000"));
 			} else {
-				return compute.queryCompute(query);
+				return computedQuery;
 			}
 		} else {
 			return Promise.reject(new InsightError("query not valid"));
 		}
-
-		// return engine.queryEngine(query);
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
