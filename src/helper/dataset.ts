@@ -44,8 +44,30 @@ interface CourseObject {
 }
 
 interface ClassRoomObject {
-	[key: string]: unknown;
-	// TODO
+	// Full building name (e.g., "Hugh Dempster Pavilion").
+	rooms_fullname: string;
+	// Short building name (e.g., "DMP").
+	rooms_shortname: string;
+	// The room number. Not always a number, so represented as a string.
+	rooms_number: string;
+	// The room id; should be rooms_shortname+"_"+rooms_number.
+	rooms_name: string;
+	// The building address. (e.g., "6245 Agronomy Road V6T 1Z4").
+	rooms_address: string;
+	// The latitude of the building, as received via HTTP request.
+	rooms_lat: number;
+	// The longitude of the building, as received via HTTP request.
+	rooms_lon: number;
+	// The number of seats in the room. The default value for this field
+	// (should this value be missing in the dataset) is 0.
+	rooms_seats: number;
+	// The room type (e.g., "Small Group").
+	rooms_type: string;
+	// The room furniture (e.g., "Classroom-Movable Tables & Chairs").
+	rooms_furniture: string;
+	// The link to full details online
+	// (e.g., "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/DMP-201").
+	rooms_href: string;
 }
 
 function CourseObjectHelper(section: object): CourseObject{

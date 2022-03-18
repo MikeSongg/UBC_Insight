@@ -39,7 +39,7 @@ describe("InsightFacade", function () {
 		fs.removeSync(persistDir);
 	});
 
-	describe("Add/Remove/List Dataset", function () {
+	describe("Add/Remove/List Room Dataset", function () {
 		before(function () {
 			console.info(`Before: ${this.test?.parent?.title}`);
 		});
@@ -228,49 +228,49 @@ describe("InsightFacade", function () {
 				});
 		});
 	});
-
-	/*
-	 * This test suite dynamically generates tests from the JSON files in test/queries.
-	 * You should not need to modify it; instead, add additional files to the queries directory.
-	 * You can still make tests the normal way, this is just a convenient tool for a majority of queries.
-	 */
-	describe("PerformQuery", () => {
-		before(function () {
-			console.info(`Before: ${this.test?.parent?.title}`);
-
-			insightFacade = new InsightFacade();
-
-			// Load the datasets specified in datasetsToQuery and add them to InsightFacade.
-			// Will *fail* if there is a problem reading ANY dataset.
-			const loadDatasetPromises = [
-				insightFacade.addDataset("courses", datasetContents.get("courses") ?? "", InsightDatasetKind.Courses),
-			];
-
-			return Promise.all(loadDatasetPromises);
-		});
-
-		after(function () {
-			console.info(`After: ${this.test?.parent?.title}`);
-			fs.removeSync(persistDir);
-		});
-
-		type PQErrorKind = "ResultTooLargeError" | "InsightError";
-
-		folderTest<unknown, Promise<InsightResult[]>, PQErrorKind>(
-			"Dynamic InsightFacade PerformQuery tests",
-			(input) => insightFacade.performQuery(input),
-			"./test/resources/queries",
-			{
-				errorValidator: (error): error is PQErrorKind =>
-					error === "ResultTooLargeError" || error === "InsightError",
-				assertOnError(actual, expected) {
-					if (expected === "ResultTooLargeError") {
-						expect(actual).to.be.instanceof(ResultTooLargeError);
-					} else {
-						expect(actual).to.be.instanceof(InsightError);
-					}
-				},
-			}
-		);
-	});
+	//
+	// /*
+	//  * This test suite dynamically generates tests from the JSON files in test/queries.
+	//  * You should not need to modify it; instead, add additional files to the queries directory.
+	//  * You can still make tests the normal way, this is just a convenient tool for a majority of queries.
+	//  */
+	// describe("PerformQuery", () => {
+	// 	before(function () {
+	// 		console.info(`Before: ${this.test?.parent?.title}`);
+	//
+	// 		insightFacade = new InsightFacade();
+	//
+	// 		// Load the datasets specified in datasetsToQuery and add them to InsightFacade.
+	// 		// Will *fail* if there is a problem reading ANY dataset.
+	// 		const loadDatasetPromises = [
+	// 			insightFacade.addDataset("courses", datasetContents.get("courses") ?? "", InsightDatasetKind.Courses),
+	// 		];
+	//
+	// 		return Promise.all(loadDatasetPromises);
+	// 	});
+	//
+	// 	after(function () {
+	// 		console.info(`After: ${this.test?.parent?.title}`);
+	// 		fs.removeSync(persistDir);
+	// 	});
+	//
+	// 	type PQErrorKind = "ResultTooLargeError" | "InsightError";
+	//
+	// 	folderTest<unknown, Promise<InsightResult[]>, PQErrorKind>(
+	// 		"Dynamic InsightFacade PerformQuery tests",
+	// 		(input) => insightFacade.performQuery(input),
+	// 		"./test/resources/queries",
+	// 		{
+	// 			errorValidator: (error): error is PQErrorKind =>
+	// 				error === "ResultTooLargeError" || error === "InsightError",
+	// 			assertOnError(actual, expected) {
+	// 				if (expected === "ResultTooLargeError") {
+	// 					expect(actual).to.be.instanceof(ResultTooLargeError);
+	// 				} else {
+	// 					expect(actual).to.be.instanceof(InsightError);
+	// 				}
+	// 			},
+	// 		}
+	// 	);
+	// });
 });
