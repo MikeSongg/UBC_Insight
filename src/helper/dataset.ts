@@ -1,4 +1,4 @@
-import {InsightDatasetKind, InsightResult} from "../controller/IInsightFacade";
+import {InsightDatasetKind} from "../controller/IInsightFacade";
 
 
 /**
@@ -85,7 +85,7 @@ function CourseObjectHelper(section: object): CourseObject{
 		year:			(sec.Section === "overall") ? 1900 : parseInt(sec.Year,10) // Year
 	} as CourseObject;
 }
-
+/* Function that no longer needed.
 function CourseObjectToInsightResult(objList: CourseObject[]): InsightResult[] {
 	let insightResultList: InsightResult[] = [];
 	objList.forEach((cObj) => {
@@ -98,7 +98,7 @@ function CourseObjectToInsightResult(objList: CourseObject[]): InsightResult[] {
 	});
 	return insightResultList;
 }
-
+*/
 function createTestDataset(id: string, content: string, kind: InsightDatasetKind,
 	numRows: number, parsedObj: object[]): TestDataset {
 	let testDataset: TestDataset;
@@ -121,6 +121,5 @@ export {TestDataset,
 	CourseObject,
 	ClassRoomObject,
 	CourseObjectHelper,
-	CourseObjectToInsightResult,
 	createTestDataset
 };
