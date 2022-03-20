@@ -218,7 +218,7 @@ export default class InsightFacade implements IInsightFacade {
 		this.insightDatasets.forEach((dataset) => {
 			this.dataStoreHelperObject.testStore(dataset, dataset.id);
 		});
-		console.log("PersistenceWrite To be implemented");
+		console.log("Persistence Write Finished");
 	}
 
 }

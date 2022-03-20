@@ -17,7 +17,7 @@ async function CourseObjectParseHelper(jszip: JSZip): Promise<CourseObject[]> {
 	let PromiseSet: Array<Promise<boolean>> = [];
 
 	/** Reject if the folder is empty */
-	const fileList = await jszip.folder("courses")?.files;
+	const fileList = await jszip.folder("courses/")?.files;
 	if (fileList === undefined) {
 		return Promise.reject(new InsightError("File Reading Error"));
 	} else if (Object.keys(fileList).length === 1) {
@@ -26,8 +26,8 @@ async function CourseObjectParseHelper(jszip: JSZip): Promise<CourseObject[]> {
 
 	/** Traverse the fileList. */
 	for (let file in fileList) {
-		if (file !== "courses/") {
-			/** Exclude the root folder. */
+		if (file !== "courses/" && file.indexOf("courses/") === 0) {
+			/** Exclude the root folder. Make sure file comes from courses folder.*/
 			PromiseSet.push(
 				jszip.files[file].async("text")?.then((str) => {
 					if (str === "") {

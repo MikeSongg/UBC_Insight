@@ -26,7 +26,8 @@ describe("InsightFacade", function () {
 		blankFolder: "./test/resources/archives/blankFolder.zip",
 		blankJson: "./test/resources/archives/blankJson.zip",
 		notZip: "./test/resources/archives/notZip.txt",
-		Room: "./test/resources/archives/rooms.zip"
+		Room: "./test/resources/archives/rooms.zip",
+		weirdZip: "./test/resources/archives/weirdZip.zip"
 	};
 
 	before(function () {
@@ -227,6 +228,17 @@ describe("InsightFacade", function () {
 					});
 				});
 		});
+
+		// It should add a zip file where exists both courses/ and rooms/ folders
+		it("Should fix the lifecycle problem (only reads from corresponding folder)", function () {
+			const id: string = "weirdZip";
+			const content: string = datasetContents.get("weirdZip") ?? "";
+			const expected: string[] = [id];
+			return insightFacade.addDataset(id, content, InsightDatasetKind.Courses).then((result: string[]) => {
+				expect(result).to.deep.equal(expected);
+			});
+		});
+
 	});
 
 	/*
