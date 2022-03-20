@@ -26,7 +26,7 @@ describe("InsightFacade", function () {
 		blankFolder: "./test/resources/archives/blankFolder.zip",
 		blankJson: "./test/resources/archives/blankJson.zip",
 		notZip: "./test/resources/archives/notZip.txt",
-		Room: "./test/resources/archives/rooms.zip",
+		rooms: "./test/resources/archives/rooms.zip",
 		weirdZip: "./test/resources/archives/weirdZip.zip"
 	};
 
@@ -235,6 +235,16 @@ describe("InsightFacade", function () {
 			const content: string = datasetContents.get("weirdZip") ?? "";
 			const expected: string[] = [id];
 			return insightFacade.addDataset(id, content, InsightDatasetKind.Courses).then((result: string[]) => {
+				expect(result).to.deep.equal(expected);
+			});
+		});
+
+		// It should add rooms dataset.
+		it("Should add rooms dataset", function () {
+			const id: string = "rooms";
+			const content: string = datasetContents.get("rooms") ?? "";
+			const expected: string[] = [id];
+			return insightFacade.addDataset(id, content, InsightDatasetKind.Rooms).then((result: string[]) => {
 				expect(result).to.deep.equal(expected);
 			});
 		});

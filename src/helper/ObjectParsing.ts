@@ -1,7 +1,8 @@
 import JSZip from "jszip";
 import {ClassRoomObject, CourseObject, CourseObjectHelper} from "./dataset";
 import {InsightError} from "../controller/IInsightFacade";
-
+import {parse} from "parse5";
+import {ParseIndex} from "./htmlHelper";
 
 /**
  * This is a helper function for parsing course objects.
@@ -73,11 +74,36 @@ async function ClassRoomObjectParseHelper(jszip: JSZip): Promise<ClassRoomObject
 	let PromiseSet: Array<Promise<boolean>> = [];
 
 	/** Reject if the folder is empty */
-	const fileList = await jszip.folder("courses")?.files;
+	const fileList = await jszip.folder("rooms")?.files;
 	if (fileList === undefined) {
 		return Promise.reject(new InsightError("File Reading Error"));
 	} else if (Object.keys(fileList).length === 1) {
 		return Promise.reject(new InsightError("Empty folder"));
+	}
+
+	let roomIndex = await jszip.files["rooms/index.htm"]?.async("text")?.then((str) => {
+		return str;
+	});
+	let requiredRoomList = ParseIndex(roomIndex);
+
+	for(let file in requiredRoomList) {
+		if(file !== "rooms/" && file.indexOf("rooms/") === 0) {
+			PromiseSet.push(
+				jszip.files[file].async("text")?.then((str) => {
+					if(str === "") {
+						return Promise.reject();
+					} else {
+						let sectionList = JSON.parse(str).result as object[];
+						for(let section in sectionList) {
+							// a.push(ClassRoomObjectHelper(sectionList[section]));
+						}
+						return true;
+					}
+				}).catch((e) => {
+					return Promise.reject(e);
+				})
+			);
+		}
 	}
 	return Promise.resolve([]);
 }
