@@ -1,8 +1,7 @@
 import JSZip from "jszip";
 import {ClassRoomObject, CourseObject, CourseObjectHelper} from "./dataset";
 import {InsightError} from "../controller/IInsightFacade";
-import {parse} from "parse5";
-import {ParseIndex} from "./htmlHelper";
+import {ParseIndex} from "./buildingHelper";
 
 /**
  * This is a helper function for parsing course objects.
@@ -68,10 +67,7 @@ async function CourseObjectParseHelper(jszip: JSZip): Promise<CourseObject[]> {
 
 async function ClassRoomObjectParseHelper(jszip: JSZip): Promise<ClassRoomObject[]> {
 	/** NOTE: Map < key, Object> */
-	let a = new Array<CourseObject>();
-
-	/** This set of Promises contains the Promise of every file parsing. */
-	let PromiseSet: Array<Promise<boolean>> = [];
+	let classRooms = new Array<CourseObject>();
 
 	/** Reject if the folder is empty */
 	const fileList = await jszip.folder("rooms")?.files;
@@ -84,9 +80,9 @@ async function ClassRoomObjectParseHelper(jszip: JSZip): Promise<ClassRoomObject
 	let roomIndex = await jszip.files["rooms/index.htm"]?.async("text")?.then((str) => {
 		return str;
 	});
-	let requiredRoomList = ParseIndex(roomIndex);
+	let requiredRoomList = await ParseIndex(roomIndex);
 
-	for(let file in requiredRoomList) {
+	/* for(let file in requiredRoomList) {
 		if(file !== "rooms/" && file.indexOf("rooms/") === 0) {
 			PromiseSet.push(
 				jszip.files[file].async("text")?.then((str) => {
@@ -104,13 +100,8 @@ async function ClassRoomObjectParseHelper(jszip: JSZip): Promise<ClassRoomObject
 				})
 			);
 		}
-	}
+	} */
 	return Promise.resolve([]);
-}
-
-function HtmlParse(htmlToParse: string): object {
-	// TODO!
-	return {};
 }
 
 export {CourseObjectParseHelper, ClassRoomObjectParseHelper};
