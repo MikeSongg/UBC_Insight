@@ -1,7 +1,8 @@
 import JSZip from "jszip";
 import {ClassRoomObject, CourseObject, CourseObjectHelper} from "./dataset";
 import {InsightError} from "../controller/IInsightFacade";
-import {ParseIndex} from "./buildingHelper";
+import {ParseIndex} from "./BuildingHelper";
+import {ParseClassRoom} from "./ClassRoomHelper";
 
 /**
  * This is a helper function for parsing course objects.
@@ -66,8 +67,7 @@ async function CourseObjectParseHelper(jszip: JSZip): Promise<CourseObject[]> {
 }
 
 async function ClassRoomObjectParseHelper(jszip: JSZip): Promise<ClassRoomObject[]> {
-	/** NOTE: Map < key, Object> */
-	let classRooms = new Array<CourseObject>();
+	let classRoomsSet: ClassRoomObject[] = [];
 
 	/** Reject if the folder is empty */
 	const fileList = await jszip.folder("rooms")?.files;
@@ -80,28 +80,39 @@ async function ClassRoomObjectParseHelper(jszip: JSZip): Promise<ClassRoomObject
 	let roomIndex = await jszip.files["rooms/index.htm"]?.async("text")?.then((str) => {
 		return str;
 	});
-	let requiredRoomList = await ParseIndex(roomIndex);
-
-	/* for(let file in requiredRoomList) {
-		if(file !== "rooms/" && file.indexOf("rooms/") === 0) {
-			PromiseSet.push(
-				jszip.files[file].async("text")?.then((str) => {
-					if(str === "") {
-						return Promise.reject();
-					} else {
-						let sectionList = JSON.parse(str).result as object[];
-						for(let section in sectionList) {
-							// a.push(ClassRoomObjectHelper(sectionList[section]));
-						}
-						return true;
-					}
-				}).catch((e) => {
-					return Promise.reject(e);
-				})
-			);
+	let buildingList = await ParseIndex(roomIndex);
+	console.log("Test.");
+	let classRoomPromises: Array<Promise<ClassRoomObject[]>> = [];
+	for (let building of buildingList) {
+		if(jszip.folder("rooms/") !== undefined && jszip.folder("rooms/") !== null) {
+			let JSFileObj = jszip.folder("rooms/")?.file(building.link.slice(2))?.async("text");
+			classRoomPromises.push(ParseClassRoom(building, JSFileObj));
 		}
-	} */
-	return Promise.resolve([]);
+	}
+
+	let hasBad: InsightError | undefined;
+	await Promise.allSettled(classRoomPromises).then((resultSet) => {
+		resultSet.forEach((result) => {
+			if(hasBad === undefined) {
+				if (result.status === "fulfilled") {
+					if (result.value === null || result.value === undefined) {
+						hasBad = new InsightError("Encounter an empty file or non-existence.");
+					} else {
+						for(let room of result.value) {
+							classRoomsSet.push(room);
+						}
+					}
+				} else {
+					hasBad = result.reason;
+				}
+			}
+		});
+	});
+	if(hasBad !== undefined){
+		return Promise.reject(hasBad);
+	} else {
+		return Promise.resolve(classRoomsSet);
+	}
 }
 
 export {CourseObjectParseHelper, ClassRoomObjectParseHelper};

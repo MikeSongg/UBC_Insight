@@ -3,7 +3,6 @@ import {InsightDatasetKind} from "../controller/IInsightFacade";
 
 /**
  * Self-designed types
- * TODO: Consider rename. Consider Persistent this.
  */
 
 interface TestDataset {
@@ -70,6 +69,27 @@ interface ClassRoomObject {
 	href: string;
 }
 
+interface HTMLObject {
+	nodeName: string;
+	name?: string;
+	value?: string;
+	parentNode?: HTMLObject;
+	attrs?: Array<{
+		name: string;
+		value: string;
+	}>;
+	childNodes?: HTMLObject[];
+}
+
+interface BuildingObject {
+	code: string;
+	building: string;
+	address: string;
+	link: string;
+	lat: number;
+	lon: number;
+}
+
 function CourseObjectHelper(section: object): CourseObject{
 	let sec = section as OriginalCourseObject;
 	return {
@@ -120,6 +140,8 @@ function createTestDataset(id: string, content: string, kind: InsightDatasetKind
 export {TestDataset,
 	CourseObject,
 	ClassRoomObject,
+	HTMLObject,
+	BuildingObject,
 	CourseObjectHelper,
 	createTestDataset
 };

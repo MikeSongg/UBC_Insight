@@ -1,28 +1,8 @@
 import {parse} from "parse5";
 import {InsightError} from "../controller/IInsightFacade";
 import * as http from "http";
+import {BuildingObject, HTMLObject} from "./dataset";
 
-
-interface HTMLObject {
-	nodeName: string;
-	name?: string;
-	value?: string;
-	parentNode?: HTMLObject;
-	attrs?: Array<{
-		name: string;
-		value: string;
-	}>;
-	childNodes?: HTMLObject[];
-}
-
-interface BuildingObject {
-	code: string;
-	building: string;
-	address: string;
-	link: string;
-	lat: number;
-	lon: number;
-}
 
 async function ParseIndex(htmlToParse: string): Promise<BuildingObject[]> {
 	let parsedBuildingSet: BuildingObject[] = [];
@@ -57,7 +37,6 @@ async function ParseIndex(htmlToParse: string): Promise<BuildingObject[]> {
 		return parsedBuildingSet;
 	}
 }
-
 
 function BuildingHTMLTraversal(htmlObjects: HTMLObject[]): BuildingObject[] {
 	let buildingFound: BuildingObject[] = [];
@@ -127,14 +106,13 @@ function buildingTRObjectsParser(buildingHTML: HTMLObject): BuildingObject{
 
 async function buildingGeogRequest(build: BuildingObject): Promise<BuildingObject> {
 	let hostName = "http://cs310.students.cs.ubc.ca:11316";
-	let escapedPath =  "/api/v1/project_team_602/" +  encodeURIComponent(build.address.trim());
+	let escapedPath =  "/api/v1/project_team_602/" + encodeURIComponent(build.address.trim());
 
 	return new Promise((resolve, reject) => {
 		http.get(hostName + escapedPath, (res) => {
 			let data = "";
 			res.on("data", (chunk) => {
 				data += chunk;
-				console.log("Data Received: " + data);
 			});
 			res.on("end", () => {
 				let parsedBody = JSON.parse(data);
@@ -147,7 +125,7 @@ async function buildingGeogRequest(build: BuildingObject): Promise<BuildingObjec
 				}
 			});
 		}).on("error", (err) => {
-			return reject(new InsightError("Geography request failed : " + err));
+			reject(new InsightError("Geography request failed : " + err));
 		});
 	});
 }
