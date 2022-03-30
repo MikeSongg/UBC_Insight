@@ -1,0 +1,41 @@
+
+
+{
+
+	"title": "noColumn",
+
+
+	"input": {
+		"WHERE": {},
+		"OPTIONS": {
+			"COLUMNS": [
+				"courses_title",
+				"overallAvg"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"courses_title"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"courses_title"
+			],
+			"APPLY": [
+				{
+					"overallAvg": {
+						"AVG": "courses_avg"
+					}
+				}
+			]
+		}
+	},
+
+	"errorExpected": false,
+	"expected": "InsightError"
+
+
+
+}

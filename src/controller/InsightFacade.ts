@@ -5,9 +5,9 @@ import JSZip from "jszip";
 import {ClassRoomObject, CourseObject, createTestDataset, TestDataset,} from "../helper/dataset";
 import {DataStore} from "../helper/dataStore";
 import * as fs from "fs-extra";
-import {QueryCheck} from "../helper/QueryCheck";
-import {QueryCompute} from "../helper/QueryCompute";
 import * as ObjectParseHelper from "../helper/ObjectParsing";
+import {QueryCheckC2} from "../helper/QueryCheckC2";
+import {QueryComputeC22} from "../helper/QueryComputeC22";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -104,10 +104,17 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
-		let Check = new QueryCheck(this.insightDatasets);
-		let compute = new QueryCompute(this.insightDatasets);
-		if (Check.queryCheck(query)) {
-			let computedQuery = compute.queryCompute(query);
+		let Check = new QueryCheckC2(this.insightDatasets);
+		let compute = new QueryComputeC22(this.insightDatasets);
+		let checkResult: any = Check.queryCheckC2(query);
+		if(checkResult instanceof InsightError) {
+			return Promise.reject(checkResult);
+		}
+		if (checkResult === false) {
+			return Promise.reject(new InsightError("inside not valid"));
+		}
+		if (checkResult === true) {
+			let computedQuery = compute.queryComputeC22(query);
 			if(computedQuery instanceof InsightError) {
 				return Promise.reject(computedQuery);
 			} else if (computedQuery.length > 5000) {
@@ -116,8 +123,9 @@ export default class InsightFacade implements IInsightFacade {
 				return computedQuery;
 			}
 		} else {
-			return Promise.reject(new InsightError("query not valid"));
+			return Promise.reject(new InsightError("query not performed"));
 		}
+
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
