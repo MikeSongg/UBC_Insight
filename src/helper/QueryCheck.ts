@@ -72,7 +72,7 @@ export class QueryCheck {
 			return this.checkIs(where[filter]);
 		}
 		if ((filter === "NOT") ){
-			this.checkWHREREFilter(where["NOT"]);
+			return this.checkWHREREFilter(where["NOT"]);
 		} else {
 			return false;
 		}
@@ -142,10 +142,14 @@ export class QueryCheck {
 					return false;
 				}
 				if (subvalues.length === 3) {
-					return (subvalues[0] === "" && subvalues[2] === "");
+					if (!(subvalues[0] === "" && subvalues[2] === "")) {
+						return false;
+					}
 				}
 				if (subvalues.length === 2) {
-					return (subvalues[0] === "" || subvalues[1] === "");
+					if (!(subvalues[0] === "" || subvalues[1] === "")) {
+						return false;
+					}
 				}
 				if ((sfield === "dept" || sfield === "id" || sfield === "instructor" || sfield === "title" ||
 				sfield === "uuid")) {
