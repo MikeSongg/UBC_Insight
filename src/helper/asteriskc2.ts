@@ -13,8 +13,8 @@ export function Equal(skey: any, filteredSections: any[], value: any) {
 		if (sec[skey] === (value)) {
 			arr.push(sec);
 		}
-		return arr;
 	}
+	return arr;
 }
 
 export function startWith(skey: any, filteredSections: any[],value: any) {
@@ -26,8 +26,8 @@ export function startWith(skey: any, filteredSections: any[],value: any) {
 		if (sec[skey].startsWith(value)) {
 			arr.push(sec);
 		}
-		return arr;
 	}
+	return arr;
 }
 
 export function includes(skey: any, filteredSections: any[],value: any) {
@@ -39,8 +39,8 @@ export function includes(skey: any, filteredSections: any[],value: any) {
 		if (sec[skey].includes(value)) {
 			arr.push(sec);
 		}
-		return arr;
 	}
+	return arr;
 }
 
 export function endWith(skey: any, filteredSections: any[],value: any) {
@@ -52,7 +52,7 @@ export function endWith(skey: any, filteredSections: any[],value: any) {
 		if (sec[skey].endsWith(value)) {
 			arr.push(sec);
 		}
-		return arr;
 	}
+	return arr;
 }
 
