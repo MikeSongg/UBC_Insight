@@ -1,4 +1,4 @@
-import {CourseObject, TestDataset} from "./dataset";
+import {TestDataset} from "./dataset";
 import {InsightDatasetKind, InsightError, InsightResult} from "../controller/IInsightFacade";
 import {endWith, Equal, includes, startWith} from "./asteriskc2";
 import {computeAvg, computeCount, computeMax, computeMin, computeSum} from "./applyToken";
@@ -167,7 +167,7 @@ export class QueryComputeC22 {
 
 
 	private computeNOT(obj: any, filteredSections: any[]) {
-		let filteredArr: CourseObject[] = this.computeWHEREFilter(obj,filteredSections);
+		let filteredArr: any[] = this.computeWHEREFilter(obj,filteredSections);
 		filteredArr = filteredSections.filter((x) => {
 			return !filteredArr.includes(x);
 		});
@@ -196,7 +196,7 @@ export class QueryComputeC22 {
 	}
 
 	private computeOR(obj: any,filteredSections: any[]) {
-		let arr: CourseObject[] = [];
+		let arr: any[] = [];
 		for (let o of obj) {
 			arr = arr.concat(this.computeWHEREFilter(o,filteredSections));
 		}
@@ -204,7 +204,7 @@ export class QueryComputeC22 {
 	}
 
 	private computeAND(obj: any,sections: any[]) {
-		let data: CourseObject[] = sections;
+		let data: any[] = sections;
 		for (let o of obj) {
 			data = this.computeWHEREFilter(o,data);
 		}

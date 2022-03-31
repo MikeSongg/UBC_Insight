@@ -69,7 +69,7 @@ function tbodyParser(building: BuildingObject, tbodyObj: HTMLObject): ClassRoomO
 				}
 			}
 		}
-		if(seats !== -1 && roomNum !== "" && type !== "" && furniture !== "" && href !== "") {
+		if(roomNum !== "" ) {
 			let newClassRoom = {
 				fullname: building.building,
 				shortname: building.code,
