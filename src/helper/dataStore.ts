@@ -1,7 +1,5 @@
 import * as fs from "fs-extra";
 
-// TODO: The persistent module here
-
 export class DataStore {
 
 	private persistenceDir: string;

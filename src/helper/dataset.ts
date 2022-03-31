@@ -1,18 +1,18 @@
-import {InsightDatasetKind, InsightResult} from "../controller/IInsightFacade";
+import {InsightDatasetKind} from "../controller/IInsightFacade";
 
 
 /**
  * Self-designed types
- * TODO: Consider rename. Consider Persistent this.
  */
 
-export interface TestDataset {
+interface TestDataset {
 	id: string;
 	kind: InsightDatasetKind;
 	numRows: number;
 	content: string;
 	// Map< ClassName, ClassObject >
-	coursesObj: CourseObject[];
+	coursesObj?: CourseObject[];
+	classRoomObj?: ClassRoomObject[];
 }
 
 interface OriginalCourseObject {
@@ -29,7 +29,7 @@ interface OriginalCourseObject {
 	Year:			string; // year
 }
 
-export interface CourseObject {
+interface CourseObject {
 	dept: 			string; // Subject
 	id:				string; // Course
 	avg:			number; // Avg
@@ -42,7 +42,55 @@ export interface CourseObject {
 	year:			number; // Year
 }
 
-export function CourseObjectHelper(section: object): CourseObject{
+interface ClassRoomObject {
+	// Full building name (e.g., "Hugh Dempster Pavilion").
+	fullname: string;
+	// Short building name (e.g., "DMP").
+	shortname: string;
+	// The room number. Not always a number, so represented as a string.
+	number: string;
+	// The room id; should be rooms_shortname+"_"+rooms_number.
+	name: string;
+	// The building address. (e.g., "6245 Agronomy Road V6T 1Z4").
+	address: string;
+	// The latitude of the building, as received via HTTP request.
+	lat: number;
+	// The longitude of the building, as received via HTTP request.
+	lon: number;
+	// The number of seats in the room. The default value for this field
+	// (should this value be missing in the dataset) is 0.
+	seats: number;
+	// The room type (e.g., "Small Group").
+	type: string;
+	// The room furniture (e.g., "Classroom-Movable Tables & Chairs").
+	furniture: string;
+	// The link to full details online
+	// (e.g., "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/DMP-201").
+	href: string;
+}
+
+interface HTMLObject {
+	nodeName: string;
+	name?: string;
+	value?: string;
+	parentNode?: HTMLObject;
+	attrs?: Array<{
+		name: string;
+		value: string;
+	}>;
+	childNodes?: HTMLObject[];
+}
+
+interface BuildingObject {
+	code: string;
+	building: string;
+	address: string;
+	link: string;
+	lat: number;
+	lon: number;
+}
+
+function CourseObjectHelper(section: object): CourseObject{
 	let sec = section as OriginalCourseObject;
 	return {
 		dept: 			sec.Subject, // Subject
@@ -57,8 +105,8 @@ export function CourseObjectHelper(section: object): CourseObject{
 		year:			(sec.Section === "overall") ? 1900 : parseInt(sec.Year,10) // Year
 	} as CourseObject;
 }
-
-export function CourseObjectToInsightResult(objList: CourseObject[]): InsightResult[] {
+/* Function that no longer needed.
+function CourseObjectToInsightResult(objList: CourseObject[]): InsightResult[] {
 	let insightResultList: InsightResult[] = [];
 	objList.forEach((cObj) => {
 		let insightResult: InsightResult = {};
@@ -70,3 +118,30 @@ export function CourseObjectToInsightResult(objList: CourseObject[]): InsightRes
 	});
 	return insightResultList;
 }
+*/
+function createTestDataset(id: string, content: string, kind: InsightDatasetKind,
+	numRows: number, parsedObj: object[]): TestDataset {
+	let testDataset: TestDataset;
+	testDataset = {
+		id: id,
+		content: content,
+		kind: kind,
+		numRows: numRows,
+		coursesObj: [],
+	};
+	if(kind === InsightDatasetKind.Courses) {
+		testDataset.coursesObj = parsedObj as CourseObject[];
+	} else if (kind === InsightDatasetKind.Rooms) {
+		testDataset.classRoomObj = parsedObj as ClassRoomObject[];
+	}
+	return testDataset;
+}
+
+export {TestDataset,
+	CourseObject,
+	ClassRoomObject,
+	HTMLObject,
+	BuildingObject,
+	CourseObjectHelper,
+	createTestDataset
+};

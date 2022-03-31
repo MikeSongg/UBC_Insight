@@ -26,8 +26,7 @@ describe("InsightFacade", function () {
 		blankFolder: "./test/resources/archives/blankFolder.zip",
 		blankJson: "./test/resources/archives/blankJson.zip",
 		notZip: "./test/resources/archives/notZip.txt",
-		rooms: "./test/resources/archives/rooms.zip",
-		weirdZip: "./test/resources/archives/weirdZip.zip"
+		Room: "./test/resources/archives/rooms.zip"
 	};
 
 	before(function () {
@@ -40,7 +39,7 @@ describe("InsightFacade", function () {
 		fs.removeSync(persistDir);
 	});
 
-	describe("Add/Remove/List Dataset", function () {
+	describe("Add/Remove/List Room Dataset", function () {
 		before(function () {
 			console.info(`Before: ${this.test?.parent?.title}`);
 		});
@@ -228,72 +227,50 @@ describe("InsightFacade", function () {
 					});
 				});
 		});
-
-		// It should add a zip file where exists both courses/ and rooms/ folders
-		it("Should fix the lifecycle problem (only reads from corresponding folder)", function () {
-			const id: string = "weirdZip";
-			const content: string = datasetContents.get("weirdZip") ?? "";
-			const expected: string[] = [id];
-			return insightFacade.addDataset(id, content, InsightDatasetKind.Courses).then((result: string[]) => {
-				expect(result).to.deep.equal(expected);
-			});
-		});
-
-		// It should add rooms dataset.
-		it("Should add rooms dataset", function () {
-			const id: string = "rooms";
-			const content: string = datasetContents.get("rooms") ?? "";
-			const expected: string[] = [id];
-			return insightFacade.addDataset(id, content, InsightDatasetKind.Rooms).then((result: string[]) => {
-				expect(result).to.deep.equal(expected);
-			});
-		});
-
 	});
-
-	/*
-	 * This test suite dynamically generates tests from the JSON files in test/queries.
-	 * You should not need to modify it; instead, add additional files to the queries directory.
-	 * You can still make tests the normal way, this is just a convenient tool for a majority of queries.
-	 */
-	describe("PerformQuery", () => {
-		before(function () {
-			console.info(`Before: ${this.test?.parent?.title}`);
-
-			insightFacade = new InsightFacade();
-
-			// Load the datasets specified in datasetsToQuery and add them to InsightFacade.
-			// Will *fail* if there is a problem reading ANY dataset.
-			const loadDatasetPromises = [
-				insightFacade.addDataset("courses", datasetContents.get("courses") ?? "", InsightDatasetKind.Courses),
-				insightFacade.addDataset("rooms", datasetContents.get("rooms") ?? "", InsightDatasetKind.Rooms)
-			];
-
-			return Promise.all(loadDatasetPromises);
-		});
-
-		after(function () {
-			console.info(`After: ${this.test?.parent?.title}`);
-			fs.removeSync(persistDir);
-		});
-
-		type PQErrorKind = "ResultTooLargeError" | "InsightError";
-
-		folderTest<unknown, Promise<InsightResult[]>, PQErrorKind>(
-			"Dynamic InsightFacade PerformQuery tests",
-			(input) => insightFacade.performQuery(input),
-			"./test/resources/queries",
-			{
-				errorValidator: (error): error is PQErrorKind =>
-					error === "ResultTooLargeError" || error === "InsightError",
-				assertOnError(actual, expected) {
-					if (expected === "ResultTooLargeError") {
-						expect(actual).to.be.instanceof(ResultTooLargeError);
-					} else {
-						expect(actual).to.be.instanceof(InsightError);
-					}
-				},
-			}
-		);
-	});
+	//
+	// /*
+	//  * This test suite dynamically generates tests from the JSON files in test/queries.
+	//  * You should not need to modify it; instead, add additional files to the queries directory.
+	//  * You can still make tests the normal way, this is just a convenient tool for a majority of queries.
+	//  */
+	// describe("PerformQuery", () => {
+	// 	before(function () {
+	// 		console.info(`Before: ${this.test?.parent?.title}`);
+	//
+	// 		insightFacade = new InsightFacade();
+	//
+	// 		// Load the datasets specified in datasetsToQuery and add them to InsightFacade.
+	// 		// Will *fail* if there is a problem reading ANY dataset.
+	// 		const loadDatasetPromises = [
+	// 			insightFacade.addDataset("courses", datasetContents.get("courses") ?? "", InsightDatasetKind.Courses),
+	// 		];
+	//
+	// 		return Promise.all(loadDatasetPromises);
+	// 	});
+	//
+	// 	after(function () {
+	// 		console.info(`After: ${this.test?.parent?.title}`);
+	// 		fs.removeSync(persistDir);
+	// 	});
+	//
+	// 	type PQErrorKind = "ResultTooLargeError" | "InsightError";
+	//
+	// 	folderTest<unknown, Promise<InsightResult[]>, PQErrorKind>(
+	// 		"Dynamic InsightFacade PerformQuery tests",
+	// 		(input) => insightFacade.performQuery(input),
+	// 		"./test/resources/queries",
+	// 		{
+	// 			errorValidator: (error): error is PQErrorKind =>
+	// 				error === "ResultTooLargeError" || error === "InsightError",
+	// 			assertOnError(actual, expected) {
+	// 				if (expected === "ResultTooLargeError") {
+	// 					expect(actual).to.be.instanceof(ResultTooLargeError);
+	// 				} else {
+	// 					expect(actual).to.be.instanceof(InsightError);
+	// 				}
+	// 			},
+	// 		}
+	// 	);
+	// });
 });

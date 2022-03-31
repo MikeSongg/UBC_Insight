@@ -1,17 +1,14 @@
-import {
-	IInsightFacade,
-	InsightDataset,
-	InsightDatasetKind,
-	InsightError,
-	InsightResult,
-	NotFoundError, ResultTooLargeError
+import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, InsightResult, NotFoundError,
+	ResultTooLargeError
 } from "./IInsightFacade";
 import JSZip from "jszip";
-import {CourseObject, TestDataset, CourseObjectHelper} from "../helper/dataset";
+import {ClassRoomObject, CourseObject, createTestDataset, TestDataset,} from "../helper/dataset";
 import {DataStore} from "../helper/dataStore";
 import * as fs from "fs-extra";
-import {QueryCheck} from "../helper/QueryCheck";
-import {QueryCompute} from "../helper/QueryCompute";
+import * as ObjectParseHelper from "../helper/ObjectParsing";
+import {QueryCheckC2} from "../helper/QueryCheckC2";
+import {QueryComputeC22} from "../helper/QueryComputeC22";
+
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
@@ -21,10 +18,12 @@ import {QueryCompute} from "../helper/QueryCompute";
 export default class InsightFacade implements IInsightFacade {
 
 	private insightDatasets: TestDataset[];
+	private persistenceDir = "./data/";
+	private dataStoreHelperObject: DataStore = new DataStore(this.persistenceDir);
 
 	constructor() {
 		console.log("InsightFacadeImpl::init()");
-		this.insightDatasets = InsightFacade.PersistenceRead();
+		this.insightDatasets = this.PersistenceRead();
 	}
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -41,23 +40,32 @@ export default class InsightFacade implements IInsightFacade {
 			(e) => Promise.reject(new InsightError(e + id))
 		);
 
+		let parsedObj: CourseObject[] | ClassRoomObject[] = [];
 		// Parse objects and create new testDataset Object.
-		let Obj: CourseObject[] = await InsightFacade.ObjectParseHelper(jszip).catch( (e) => {
-			return Promise.reject(new InsightError(e));
-		});
+		if(kind === InsightDatasetKind.Courses) {
+			let tempObj: CourseObject[] = await ObjectParseHelper.CourseObjectParseHelper(jszip).catch((e) => {
+				return Promise.reject(new InsightError(e));
+			});
+			parsedObj = tempObj;
+			const numRows = parsedObj.length;
+			let testDataset: TestDataset = createTestDataset(id, content, kind, numRows, parsedObj);
+			this.insightDatasets.push(testDataset);
 
-		const numRows = Obj.length;
+		} else if(kind === InsightDatasetKind.Rooms) {
+			let tempObj: ClassRoomObject[] = await ObjectParseHelper.ClassRoomObjectParseHelper(jszip).catch((e) => {
+				return Promise.reject(new InsightError(e));
+			});
+			parsedObj = tempObj;
+			const numRows = parsedObj.length;
+			let testDataset: TestDataset = createTestDataset(id, content, kind, numRows, parsedObj);
+			this.insightDatasets.push(testDataset);
+
+		} else {
+			return Promise.reject(new InsightError("Unknown InsightDatasetKind"));
+		}
+
 
 		// push this dataset into the dataset list
-		let testDataset: TestDataset;
-		testDataset = {
-			id: id,
-			content: content,
-			kind: kind,
-			numRows: numRows,
-			coursesObj: Obj
-		};
-		this.insightDatasets.push(testDataset);
 
 		this.PersistenceWrite();
 		// Fetch IDs of datasets for return
@@ -96,20 +104,28 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async performQuery(query: unknown): Promise<InsightResult[]> {
-		let Check = new QueryCheck(this.insightDatasets);
-		let compute = new QueryCompute(this.insightDatasets);
-		// let engine = new QueryEngine(this.insightDatasets);
-		if (Check.queryCheck(query)) {
-			if (compute.queryCompute(query).length > 5000) {
+		let Check = new QueryCheckC2(this.insightDatasets);
+		let compute = new QueryComputeC22(this.insightDatasets);
+		let checkResult: any = Check.queryCheckC2(query);
+		if(checkResult instanceof InsightError) {
+			return Promise.reject(checkResult);
+		}
+		if (checkResult === false) {
+			return Promise.reject(new InsightError("inside not valid"));
+		}
+		if (checkResult === true) {
+			let computedQuery = compute.queryComputeC22(query);
+			if(computedQuery instanceof InsightError) {
+				return Promise.reject(computedQuery);
+			} else if (computedQuery.length > 5000) {
 				return Promise.reject(new ResultTooLargeError("the result is over 5000"));
 			} else {
-				return compute.queryCompute(query);
+				return Promise.resolve(computedQuery);
 			}
 		} else {
-			return Promise.reject(new InsightError("query not valid"));
+			return Promise.reject(new InsightError("query not performed"));
 		}
 
-		// return engine.queryEngine(query);
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
@@ -187,69 +203,6 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	/**
-	 * This is a helper function for parsing course objects.
-	 * This is a complicate function, please check comments inside.
-	 * @param jszip JSZip
-	 * @return Promise<Map<string, string>>
-	 */
-	private static async ObjectParseHelper(jszip: JSZip): Promise<CourseObject[]> {
-		/** NOTE: Map < key, Object> */
-		let a = new Array<CourseObject>();
-
-		/** This set of Promises contains the Promise of every file parsing. */
-		let PromiseSet: Array<Promise<boolean>> = [];
-
-		/** Reject if the folder is empty */
-		const fileList = await jszip.folder("courses")?.files;
-		if (fileList === undefined) {
-			return Promise.reject(new InsightError("File Reading Error"));
-		} else if (Object.keys(fileList).length === 1) {
-			return Promise.reject(new InsightError("Empty folder"));
-		}
-
-		/** Traverse the fileList. */
-		for (let file in fileList) {
-			if(file !== "courses/") {			/** Exclude the root folder. */
-				PromiseSet.push(
-					jszip.files[file].async("text")?.then((str) => {
-						if (str === "") {
-							/** Found an empty json file. */
-							return Promise.reject();
-						} else {
-							/** File ok, parse and push. */
-							let sectionList = JSON.parse(str).result as object[];
-							// a.push(cObj);
-
-							for(let section in sectionList) {
-								a.push(CourseObjectHelper(sectionList[section]));
-							}
-							return true;
-						}
-					}).catch( (e) => {
-						/** throw the exception to higher level. */
-						return Promise.reject(e);
-					})
-				);
-			}
-		}
-
-		/** Wait for all Promise to finish and return, then check if empty file exists. */
-		let hasBlank = await Promise.allSettled(PromiseSet).then((resultSet) => {
-			return resultSet.every((result) =>
-				result.status === "rejected"
-			);
-		});
-
-		if(hasBlank) {
-			/** Reject if contains empty file. */
-			return Promise.reject(new InsightError("Blank File"));
-		} else {
-			/** Files good, return the object hashmap */
-			return Promise.resolve(a);
-		}
-	}
-
-	/**
 	 * This is a helper function for listing all IDs.
 	 * @return A string[] contains all IDs
 	 */
@@ -261,25 +214,19 @@ export default class InsightFacade implements IInsightFacade {
 		return ids;
 	}
 
-	private static PersistenceRead(): TestDataset[]{
-		// TODO: Read the data structure from disk
-		let ds = new DataStore( "./data/");
-		return ds.testRead() as TestDataset[];
+	private PersistenceRead(): TestDataset[]{
+		return this.dataStoreHelperObject.testRead() as TestDataset[];
 	}
 
 	private PersistenceWrite(): void{
-		// TODO: Write the data structure to disk
-		// this.insightDatasets = this.insightDatasets;
-		let persistenceDir = "./data/";
-		let ds = new DataStore(persistenceDir);
-		if(fs.pathExistsSync(persistenceDir)) {
-			fs.removeSync(persistenceDir);
+		if(fs.pathExistsSync(this.persistenceDir)) {
+			fs.removeSync(this.persistenceDir);
 		}
-		fs.mkdirSync(persistenceDir);
+		fs.mkdirSync(this.persistenceDir);
 		this.insightDatasets.forEach((dataset) => {
-			ds.testStore(dataset, dataset.id);
+			this.dataStoreHelperObject.testStore(dataset, dataset.id);
 		});
-		console.log("PersistenceWrite To be implemented");
+		console.log("Persistence Write Finished");
 	}
 
 }
