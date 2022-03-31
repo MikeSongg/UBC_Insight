@@ -1,5 +1,6 @@
 import express, {Application, Request, Response} from "express";
 import * as http from "http";
+import ServerHelper from "./ServerHelper";
 // TODO
 // import cors from "cors";
 
@@ -7,6 +8,7 @@ export default class Server {
 	private readonly port: number;
 	private express: Application;
 	private server: http.Server | undefined;
+	private serverHelper: ServerHelper = new ServerHelper();
 
 	constructor(port: number) {
 		console.info(`Server::<init>( ${port} )`);
@@ -84,8 +86,11 @@ export default class Server {
 		// This is an example endpoint this you can invoke by accessing this URL in your browser:
 		// http://localhost:4321/echo/hello
 		this.express.get("/echo/:msg", Server.echo);
-
 		// TODO: your other endpoints should go here
+		this.express.put("/dataset/:id/:kind", this.serverHelper.serverAddDataset);
+		this.express.delete("/dataset/:id/", this.serverHelper.serverDelDataset);
+		this.express.post("/query", this.serverHelper.serverQuery);
+		this.express.get("/list", this.serverHelper.serverListDataset);
 
 	}
 
