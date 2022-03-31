@@ -263,15 +263,19 @@ export class QueryComputeC22 {
 	}
 
 	private  computeCOLUMNS(col: string[], converted: InsightResult[]): InsightResult[]{
-		let resultList: InsightResult[] = [];
-		for(let cObj of converted) {
-			let insightResult: InsightResult = {};
-			for (let key of col) {
-				insightResult[key] = cObj[key];
+		if (!this.trans) {
+			let resultList: InsightResult[] = [];
+			for(let cObj of converted) {
+				let insightResult: InsightResult = {};
+				for (let key of col) {
+					insightResult[key] = cObj[key];
+				}
+				resultList.push(insightResult);
 			}
-			resultList.push(insightResult);
+			return resultList;
+		} else {
+			return converted;
 		}
-		return resultList;
 	}
 
 	private  computeORDER(ord: any, sections: InsightResult[]) {

@@ -120,7 +120,7 @@ export default class InsightFacade implements IInsightFacade {
 			} else if (computedQuery.length > 5000) {
 				return Promise.reject(new ResultTooLargeError("the result is over 5000"));
 			} else {
-				return computedQuery;
+				return Promise.resolve(computedQuery);
 			}
 		} else {
 			return Promise.reject(new InsightError("query not performed"));

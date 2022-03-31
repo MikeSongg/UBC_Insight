@@ -31,7 +31,7 @@
 		}
 	},
 
-	"errorExpected": true,
+	"errorExpected": false,
     "expected":[{"courses_dept":"cpsc","courses_avg":68.13,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":69.24,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":70.59,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":70.83,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":72.21,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":72.27,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":72.67,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":73.16,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":74.88,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":74.99,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":75.81,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":75.89,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":76.04,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":77.63,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":78.22,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":78.68,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":80.32,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":80.34,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":81,"courses_instructor":"allen, meghan"},{"courses_dept":"cpsc","courses_avg":81.88,"courses_instructor":"allen, meghan"}]}
 
 
