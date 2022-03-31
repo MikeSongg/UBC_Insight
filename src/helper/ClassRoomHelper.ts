@@ -69,22 +69,20 @@ function tbodyParser(building: BuildingObject, tbodyObj: HTMLObject): ClassRoomO
 				}
 			}
 		}
-		if(seats !== -1 && roomNum !== "" && type !== "" && furniture !== "" && href !== "") {
-			let newClassRoom = {
-				fullname: building.building,
-				shortname: building.code,
-				number: roomNum,
-				name: building.code + "_" + roomNum,
-				address: building.address,
-				lat: building.lat,
-				lon: building.lon,
-				seats: seats,
-				type: type,
-				furniture: furniture,
-				href: href,
-			} as ClassRoomObject;
-			classRoomObjs.push(newClassRoom);
-		}
+		let newClassRoom = {
+			fullname: building.building,
+			shortname: building.code,
+			number: roomNum,
+			name: building.code + "_" + roomNum,
+			address: building.address,
+			lat: building.lat,
+			lon: building.lon,
+			seats: seats,
+			type: type,
+			furniture: furniture,
+			href: href,
+		} as ClassRoomObject;
+		classRoomObjs.push(newClassRoom);
 	}
 	return classRoomObjs;
 }
