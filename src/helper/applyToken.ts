@@ -24,7 +24,7 @@ export function computeSum(valueArray: number[]) {
 	valueArray.forEach((x) => {
 		sum += x;
 	});
-	return sum.toFixed(2);
+	return Number(sum.toFixed(2));
 }
 
 export function computeCount(valueArray: any[]) {

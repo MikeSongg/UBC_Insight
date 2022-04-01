@@ -16,7 +16,7 @@ export function checkApplyValue(value: any, id: string, datasetKind: string, cou
 	if (applyToken === "COUNT") {
 		let datasetId = key.split("_") [0];
 		let mfield = key.split("_")[1];
-		if (datasetKind === "room") {
+		if (datasetKind === "course") {
 			return courseField.includes(mfield) && id === datasetId;
 		}
 		if (datasetKind === "room") {
