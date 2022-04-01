@@ -1,0 +1,57 @@
+{
+	"title": "Very invalid query",
+	"input":
+{
+	"WHERE": {
+		"AND": [
+			{
+				"EQ": {
+					"courses_year": 2015
+				}
+			},
+			{
+				"IS": {
+					"courses_dept": "cpsc"
+				}
+			}
+		]
+	},
+	"OPTIONS": {
+		"COLUMNS": [
+			"courses_year",
+			"courses_dept",
+			"courses_id",
+			"sumCourse",
+			"avgCourse"
+		],
+		"ORDER": {
+			"dir": "UP",
+
+			"keys": [
+				"sumCourse"
+			]
+		}
+	},
+	"TRANSFORMATIONS": {
+		"GROUP": [
+			"courses_dept",
+			"courses_year",
+			"courses_id"
+		],
+		"APPLY": [
+			{
+				"sumCourse": {
+					"COUNT": "courses_pass"
+				}},
+			{
+				"avgCourse": {
+					"AVG": "courses_avg"
+				}
+			}
+		]
+	}
+},
+
+	"errorExpected": false,
+"expected":[{"courses_year":2015,"courses_dept":"cpsc","courses_id":"110","sumCourse":7,"avgCourse":73.35},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"210","sumCourse":6,"avgCourse":73.57},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"121","sumCourse":5,"avgCourse":76.72},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"213","sumCourse":3,"avgCourse":73.96},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"221","sumCourse":3,"avgCourse":73.58},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"320","sumCourse":3,"avgCourse":70.73},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"310","sumCourse":2,"avgCourse":79.16},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"313","sumCourse":2,"avgCourse":72.67},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"314","sumCourse":2,"avgCourse":77.58},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"317","sumCourse":2,"avgCourse":72.81},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"322","sumCourse":2,"avgCourse":74.39},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"404","sumCourse":2,"avgCourse":81.3},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"589","sumCourse":2,"avgCourse":85.38},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"259","sumCourse":1,"avgCourse":72.4},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"261","sumCourse":1,"avgCourse":71.45},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"301","sumCourse":1,"avgCourse":82.99},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"302","sumCourse":1,"avgCourse":79.29},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"303","sumCourse":1,"avgCourse":74.23},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"304","sumCourse":1,"avgCourse":76.23},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"311","sumCourse":1,"avgCourse":84.39},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"312","sumCourse":1,"avgCourse":76.93},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"319","sumCourse":1,"avgCourse":87.93},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"340","sumCourse":1,"avgCourse":80.29},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"344","sumCourse":1,"avgCourse":78.28},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"410","sumCourse":1,"avgCourse":79},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"411","sumCourse":1,"avgCourse":86},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"415","sumCourse":1,"avgCourse":72},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"416","sumCourse":1,"avgCourse":81.18},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"418","sumCourse":1,"avgCourse":86.04},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"420","sumCourse":1,"avgCourse":73.64},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"421","sumCourse":1,"avgCourse":73.73},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"422","sumCourse":1,"avgCourse":74.54},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"425","sumCourse":1,"avgCourse":73.95},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"430","sumCourse":1,"avgCourse":79.13},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"444","sumCourse":1,"avgCourse":77.43},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"445","sumCourse":1,"avgCourse":83.59},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"449","sumCourse":1,"avgCourse":90.25},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"490","sumCourse":1,"avgCourse":84.5},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"500","sumCourse":1,"avgCourse":84.85},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"501","sumCourse":1,"avgCourse":83.8},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"502","sumCourse":1,"avgCourse":83.43},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"503","sumCourse":1,"avgCourse":89.47},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"507","sumCourse":1,"avgCourse":89},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"509","sumCourse":1,"avgCourse":87.2},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"515","sumCourse":1,"avgCourse":83.36},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"521","sumCourse":1,"avgCourse":84.13},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"522","sumCourse":1,"avgCourse":83.39},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"527","sumCourse":1,"avgCourse":91.22},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"540","sumCourse":1,"avgCourse":90.53},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"543","sumCourse":1,"avgCourse":82.07},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"544","sumCourse":1,"avgCourse":81.64},{"courses_year":2015,"courses_dept":"cpsc","courses_id":"547","sumCourse":1,"avgCourse":88.68}]}
+

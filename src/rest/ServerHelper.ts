@@ -27,7 +27,8 @@ class ServerHelper {
 		this.insightFacade.addDataset(req.params.id, translatedZip, kind).then((result: string[]) => {
 			res.status(200).json(result);
 		}).catch((err: any) => {
-			res.status(400).json({error: err});
+			res.status(400).json({error: "Error Happened."});
+			console.log(err);
 		});
 	};
 
@@ -37,19 +38,26 @@ class ServerHelper {
 			res.status(200).json(result);
 		}).catch((err: any) => {
 			if(err instanceof NotFoundError) {
-				res.status(404).json({error: err});
+				res.status(404).json({error: "NotFoundError"});
 			} else {
-				res.status(400).json({error: err});
+				res.status(400).json({error: "InsightError"});
 			}
 		});
 	};
 
 	public serverQuery = (req: Request, res: Response): void => {
 		console.log(`Server::serverQuery(..) - params: ${req.body}`);
+		try{
+			JSON.parse(req.body);
+		} catch (e) {
+			res.status(400).json({error: "JSON Error!"});
+		}
 		this.insightFacade.performQuery(req.body).then((result) => {
 			res.status(200).json(result);
 		}).catch((err: any) => {
-			res.status(400).json({error: err});
+			res.status(400).json({error: "InsightError"});
+			console.log(err);
+
 		});
 	};
 
@@ -57,7 +65,8 @@ class ServerHelper {
 		this.insightFacade.listDatasets().then((result: InsightDataset[]) => {
 			res.status(200).json(result);
 		}).catch((err: any) => {
-			res.status(400).json({error: err});
+			res.status(400).json({error:  "InsightError"});
+			console.log(err);
 		});
 	};
 }
