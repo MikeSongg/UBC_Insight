@@ -51,7 +51,6 @@ function handleClickMe() {
 	queryObj.TRANSFORMATIONS.GROUP.push(db + '_dept');
 	queryObj.TRANSFORMATIONS.GROUP.push(db + '_year');
 	queryObj.TRANSFORMATIONS.GROUP.push(db + '_id');
-	queryObj.TRANSFORMATIONS.GROUP.push(db + '_id');
 	queryObj.TRANSFORMATIONS.APPLY[0].sumCourse.SUM = db + '_pass';
 
 
@@ -96,19 +95,25 @@ async function postData (url , data) {
 }
 
 function tableCreate(data) {
-	//alert("Creating Table");
-	const body = document.body,
-		tbl = document.createElement('table');
-
 	if(document.getElementById("AnswerTable")) {
 		document.getElementById("AnswerTable").remove();
 	}
 
-	//alert("Remove Finished");
-
-	tbl.style.width = '30%';
+	const body = document.body, tbl = document.createElement('table');
+	tbl.style.width = '80%';
 	tbl.style.border = '1px solid black';
 	tbl.id = "AnswerTable";
+
+	if(data.length === undefined || data.length === 0){
+		const tr = tbl.insertRow();
+		const courseName = tr.insertCell();
+		courseName.appendChild(document.createTextNode(`No Result Found, or Error happened.`));
+		courseName.style.border = '1px solid black';
+		return;
+	}
+
+	let modifiedDept = Object.keys(data[0])[0];
+	let modifiedID = Object.keys(data[0])[1];
 
 	const tr = tbl.insertRow();
 	const courseName = tr.insertCell();
@@ -124,9 +129,9 @@ function tableCreate(data) {
 
 		const tr = tbl.insertRow();
 
-
+		const thisDataObj = data[i];
 		const courseName = tr.insertCell();
-		courseName.appendChild(document.createTextNode(`${data[i].courses_dept + data[i].courses_id}`));
+		courseName.appendChild(document.createTextNode(thisDataObj[modifiedDept] + thisDataObj[modifiedID]));
 		courseName.style.border = '1px solid black';
 
 
