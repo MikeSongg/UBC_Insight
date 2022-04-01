@@ -1,0 +1,43 @@
+{
+	"WHERE": {
+		"AND": [
+			{
+				"GT": {
+				"courses_avg": 0
+			}
+			},
+			{
+				"LT": {
+					"courses_avg": 100
+				}
+			},
+			{"GT":  {
+				"courses_pass": 20
+			}}
+		]
+	},
+	"OPTIONS": {
+		"COLUMNS": ["maxScore","courses_dept",
+			"courses_id",
+			"courses_avg",
+			"courses_instructor",
+			"courses_title",
+			"courses_pass",
+			"courses_fail",
+			"courses_audit",
+			"courses_uuid",
+			"courses_year"]
+	},
+	"TRANSFORMATIONS": {
+		"GROUP": ["courses_dept","courses_id"],
+		"APPLY": [{
+
+			"maxScore": {
+
+				"MAX": "courses_avg"
+
+			}
+
+		}]
+	}
+}

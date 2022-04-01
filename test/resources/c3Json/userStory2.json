@@ -1,0 +1,44 @@
+{
+	"WHERE": {
+		"AND": [
+			{
+				"EQ": {
+					"courses_year": 2015
+				}
+			},
+			{
+				"IS": {
+					"courses_dept": "cpsc"
+				}
+			}
+		]
+	},
+	"OPTIONS": {
+		"COLUMNS": [
+			"courses_year",
+			"courses_dept",
+			"courses_id",
+			"sumCourse"
+		],
+		"ORDER": {
+			"dir": "DOWN",
+			"keys": [
+				"sumCourse"
+			]
+		}
+	},
+	"TRANSFORMATIONS": {
+		"GROUP": [
+			"courses_dept",
+			"courses_year",
+			"courses_id"
+		],
+		"APPLY": [
+			{
+				"sumCourse": {
+					"SUM": "courses_pass"
+				}
+			}
+		]
+	}
+}
