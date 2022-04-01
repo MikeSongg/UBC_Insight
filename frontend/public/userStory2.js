@@ -1,30 +1,27 @@
 document.getElementById("click-me-button-2").addEventListener("click", handleClickMe);
 
 function handleClickMe() {
-	alert("Button Clicked!");
+	//alert("Button Clicked!");
+	let db = document.getElementById("db").value;
 	let year = document.getElementById("Year").value;
 	let dept = document.getElementById("Dept").value;
+
 
 	let queryObj = {
 		"WHERE": {
 			"AND": [
 				{
 					"EQ": {
-						"courses_year": 2015
 					}
 				},
 				{
 					"IS": {
-						"courses_dept": "cpsc"
 					}
 				}
 			]
 		},
 		"OPTIONS": {
 			"COLUMNS": [
-				"courses_year",
-				"courses_dept",
-				"courses_id",
 				"sumCourse"
 			],
 			"ORDER": {
@@ -36,27 +33,34 @@ function handleClickMe() {
 		},
 		"TRANSFORMATIONS": {
 			"GROUP": [
-				"courses_dept",
-				"courses_year",
-				"courses_id"
 			],
 			"APPLY": [
 				{
 					"sumCourse": {
-						"SUM": "courses_pass"
+						"SUM": ""
 					}
 				}
 			]
 		}
 	};
-	queryObj.WHERE.AND[0].EQ.courses_year = parseInt(year);
-	queryObj.WHERE.AND[1].IS.courses_dept = dept;
+	queryObj.WHERE.AND[0].EQ[db + '_year'] = parseInt(year);
+	queryObj.WHERE.AND[1].IS[db + '_dept'] = dept;
+	queryObj.OPTIONS.COLUMNS.push(db + '_year');
+	queryObj.OPTIONS.COLUMNS.push(db + '_dept');
+	queryObj.OPTIONS.COLUMNS.push(db + '_id');
+	queryObj.TRANSFORMATIONS.GROUP.push(db + '_dept');
+	queryObj.TRANSFORMATIONS.GROUP.push(db + '_year');
+	queryObj.TRANSFORMATIONS.GROUP.push(db + '_id');
+	queryObj.TRANSFORMATIONS.GROUP.push(db + '_id');
+	queryObj.TRANSFORMATIONS.APPLY[0].sumCourse.SUM = db + '_pass';
 
 
-	alert(JSON.stringify(queryObj));
+
+
+	//alert(JSON.stringify(queryObj));
 	postData('http://127.0.0.1:4321/query', queryObj)
 		.then(data => {
-			alert(data); // JSON data parsed by `data.json()` call
+			//alert(data); // JSON data parsed by `data.json()` call
 			tableCreate(data);
 		});
 
@@ -65,8 +69,8 @@ function handleClickMe() {
 // Example POST method implementation:
 async function postData (url , data) {
 	// Default options are marked with *
-	alert(data);
-	alert(JSON.stringify(data));
+	//alert(data);
+	//alert(JSON.stringify(data));
 	fetch(url, {
 		method: 'POST', // *GET, POST, PUT, DELETE, etc.
 		mode: 'cors', // no-cors, *cors, same-origin
@@ -80,7 +84,10 @@ async function postData (url , data) {
 		referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
 		body: JSON.stringify(data) // body data type must match "Content-Type" header
 	}).then(response => response.json()).then(data => {
-		alert('Success:' + JSON.stringify(data));
+		if(data.length === undefined) {
+			alert("No data found or Error Happened!");
+			return;
+		}
 		tableCreate(objResort(data));
 		return data;
 	}).catch((error) => {
@@ -89,7 +96,7 @@ async function postData (url , data) {
 }
 
 function tableCreate(data) {
-	alert("Creating Table");
+	//alert("Creating Table");
 	const body = document.body,
 		tbl = document.createElement('table');
 
@@ -97,7 +104,7 @@ function tableCreate(data) {
 		document.getElementById("AnswerTable").remove();
 	}
 
-	alert("Remove Finished");
+	//alert("Remove Finished");
 
 	tbl.style.width = '30%';
 	tbl.style.border = '1px solid black';
