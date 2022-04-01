@@ -84,7 +84,7 @@ async function postData (url , data) {
 		referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
 		body: JSON.stringify(data) // body data type must match "Content-Type" header
 	}).then(response => response.json()).then(data => {
-		if(data.length === undefined) {
+		if(data.length === undefined || data.length === 0){
 			alert("No data found or Error Happened!");
 			return;
 		}

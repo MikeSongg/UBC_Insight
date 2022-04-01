@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import InsightFacade from "../controller/InsightFacade";
-import {InsightDataset, InsightDatasetKind} from "../controller/IInsightFacade";
+import {InsightDataset, InsightDatasetKind, NotFoundError} from "../controller/IInsightFacade";
 
 class ServerHelper {
 	public insightFacade: InsightFacade;
@@ -36,7 +36,11 @@ class ServerHelper {
 		this.insightFacade.removeDataset(req.params.id).then((result: string) => {
 			res.status(200).json(result);
 		}).catch((err: any) => {
-			res.status(400).json({error: err});
+			if(err instanceof NotFoundError) {
+				res.status(404).json({error: err});
+			} else {
+				res.status(400).json({error: err});
+			}
 		});
 	};
 
