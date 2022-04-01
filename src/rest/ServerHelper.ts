@@ -11,6 +11,7 @@ class ServerHelper {
 	}
 
 	public serverAddDataset = (req: Request, res: Response): void => {
+		console.log("Server:: AddDataset");
 		console.log(req.params.id, req.params.kind, Buffer.from(req.body).toString("base64").length);
 
 		let kind: InsightDatasetKind = InsightDatasetKind.Courses;
@@ -40,10 +41,11 @@ class ServerHelper {
 	};
 
 	public serverQuery = (req: Request, res: Response): void => {
+		console.log(`Server::serverQuery(..) - params: ${req.body}`);
 		this.insightFacade.performQuery(req.body).then((result) => {
 			res.status(200).json(result);
 		}).catch((err: any) => {
-			res.status(401).json({error: err});
+			res.status(400).json({error: err});
 		});
 	};
 
