@@ -113,7 +113,14 @@ function tableCreate(data) {
 	}
 
 	let modifiedDept = Object.keys(data[0])[0];
-	let modifiedID = Object.keys(data[0])[1];
+	let modifiedID = Object.keys(data[0])[2];
+	for(let key of Object.keys(data[0])) {
+		if(key.includes("dept")) {
+			modifiedDept = key;
+		} else if (key.includes("id")) {
+			modifiedID = key;
+		}
+	}
 
 	const tr = tbl.insertRow();
 	const courseName = tr.insertCell();
