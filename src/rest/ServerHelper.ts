@@ -11,8 +11,15 @@ class ServerHelper {
 	}
 
 	public serverAddDataset = (req: Request, res: Response): void => {
-		console.log("Server:: AddDataset");
-		console.log(req.params.id, req.params.kind, Buffer.from(req.body).toString("base64").length);
+		if(typeof req.params.id === undefined || req.params.id === null) {
+			res.status(400).json({error: "Undefined ID"});
+		}
+		if(typeof req.params.kind === undefined || req.params.kind === null) {
+			res.status(400).json({error: "Undefined kind"});
+		}
+		if(typeof req.body === undefined || req.body === null) {
+			res.status(400).json({error: "Undefined body"});
+		}
 
 		let kind: InsightDatasetKind = InsightDatasetKind.Courses;
 		if(req.params.kind === "courses") {
@@ -32,7 +39,9 @@ class ServerHelper {
 	};
 
 	public serverDelDataset = (req: Request, res: Response): void => {
-
+		if(typeof req.params.id === undefined || req.params.id === null) {
+			res.status(400).json({error: "Undefined id"});
+		}
 		this.insightFacade.removeDataset(req.params.id).then((result: string) => {
 			res.status(200).json(result);
 		}).catch((err: any) => {
@@ -46,6 +55,9 @@ class ServerHelper {
 
 	public serverQuery = (req: Request, res: Response): void => {
 		console.log(`Server::serverQuery(..) - params: ${req.body}`);
+		if(typeof req.params.id === undefined || req.params.id === null) {
+			res.status(400).json({error: "Undefined id"});
+		}
 		this.insightFacade.performQuery(req.body).then((result) => {
 			res.status(200).json(result);
 		}).catch((err: any) => {
