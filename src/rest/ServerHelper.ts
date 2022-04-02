@@ -28,7 +28,6 @@ class ServerHelper {
 			res.status(200).json(result);
 		}).catch((err: any) => {
 			res.status(400).json({error: "Error Happened."});
-			console.log(err);
 		});
 	};
 
@@ -47,17 +46,10 @@ class ServerHelper {
 
 	public serverQuery = (req: Request, res: Response): void => {
 		console.log(`Server::serverQuery(..) - params: ${req.body}`);
-		try{
-			JSON.parse(req.body);
-		} catch (e) {
-			res.status(400).json({error: "JSON Error!"});
-		}
 		this.insightFacade.performQuery(req.body).then((result) => {
 			res.status(200).json(result);
 		}).catch((err: any) => {
 			res.status(400).json({error: "InsightError"});
-			console.log(err);
-
 		});
 	};
 
@@ -66,7 +58,6 @@ class ServerHelper {
 			res.status(200).json(result);
 		}).catch((err: any) => {
 			res.status(400).json({error:  "InsightError"});
-			console.log(err);
 		});
 	};
 }
