@@ -90,7 +90,7 @@ export default class Server {
 		this.express.put("/dataset/:id/:kind", this.serverHelper.serverAddDataset);
 		this.express.delete("/dataset/:id/", this.serverHelper.serverDelDataset);
 		this.express.post("/query", this.serverHelper.serverQuery);
-		this.express.get("/list", this.serverHelper.serverListDataset);
+		this.express.get("/datasets", this.serverHelper.serverListDataset);
 
 	}
 
