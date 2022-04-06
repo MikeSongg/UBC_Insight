@@ -11,13 +11,13 @@ class ServerHelper {
 	}
 
 	public serverAddDataset = (req: Request, res: Response): void => {
-		if(typeof req.params.id === undefined || req.params.id === null) {
+		if(req.params.id === undefined || req.params.id === null) {
 			res.status(400).json({error: "Undefined ID"});
 		}
-		if(typeof req.params.kind === undefined || req.params.kind === null) {
+		if(req.params.kind === undefined || req.params.kind === null) {
 			res.status(400).json({error: "Undefined kind"});
 		}
-		if(typeof req.body === undefined || req.body === null) {
+		if(req.body === undefined || req.body === null) {
 			res.status(400).json({error: "Undefined body"});
 		}
 
@@ -39,7 +39,7 @@ class ServerHelper {
 	};
 
 	public serverDelDataset = (req: Request, res: Response): void => {
-		if(typeof req.params.id === undefined || req.params.id === null) {
+		if(req.params.id === undefined || req.params.id === null) {
 			res.status(400).json({error: "Undefined id"});
 		}
 		this.insightFacade.removeDataset(req.params.id).then((result: string) => {
@@ -55,7 +55,7 @@ class ServerHelper {
 
 	public serverQuery = (req: Request, res: Response): void => {
 		console.log(`Server::serverQuery(..) - params: ${req.body}`);
-		if(typeof req.params.id === undefined || req.params.id === null) {
+		if(req.params.id === undefined || req.params.id === null) {
 			res.status(400).json({error: "Undefined id"});
 		}
 		this.insightFacade.performQuery(req.body).then((result) => {
