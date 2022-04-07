@@ -153,7 +153,7 @@ export class QueryCheckC2 {
 		if (this.trans) {
 			let columnSet = new Set(col);
 			let transSet = new Set(this.transList);
-			let areSetsEqual = (a: any, b: any) => a.size === b.size && [...a].every((value) => b.has(value));
+			let areSetsEqual = (a: any, b: any) =>  [...a].every((value) => b.has(value));
 			if (areSetsEqual(columnSet,transSet)) {
 				this.columnList = col;
 				return true;
